@@ -1,0 +1,35 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Out
+        uses: actions/checkout@v2
+
+      - name: Get Branch Name
+        run: echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
+
+      - name: Install requirements, run tests with make and write coverage
+        run: make testall
+
+      - name: Get Coverage for badge
+        run: echo "COVERAGE=$(cat coverage.json | jq .totals.percent_covered)%" >> $GITHUB_ENV
+
+      - name: Create Badge
+        uses: schneegans/dynamic-badges-action@v1.1.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: a1817190b63b0cd8f551cb3ec2ab6524
+          filename: ${{ github.event.repository.name }}_${{ env.BRANCH }}_coverage.json
+          label: Code Coverage
+          message: ${{ env.COVERAGE }}
+          color: green
+          namedLogo: GitHub Actions
