@@ -17,7 +17,7 @@ The project framework provides for abstraction of those.
 The iso21500 sees pm as a hierarchy of processes.
 According to iso 9001 processes are defined as
 
->process: set of interrelated or interacting activities that use inputs to deliver output an intended product result
+> process: set of interrelated or interacting activities that use inputs to deliver output an intended product result
 
 More in detail according to https://blog.processology.net/what-is-a-business-process
 
@@ -33,18 +33,19 @@ Business processes are invented to derive and contribute to organizational goals
 
 Business process structures can be simple or complex, based on the elements involved in the process. Through every business process, a business strives to achieve certain goals.
 
-
 ### Project Economy
 
 [PMI](https://www.pmi.org/the-project-economy) postulates that 
 
->“Project” is a huge, broad word that has such rich possibilities in terms of helping define how people do what they do and how organizations achieve their goals, create change, and deliver value. We are moving toward not defining work by its features or attributes, but in terms of what needs to get done, and figuring out the best way to do it. We call this [The Project Economy](ns_pmi_supp_sept_2019.pdf). 
+> “Project” is a huge, broad word that has such rich possibilities in terms of helping define how people do what they do and how organizations achieve their goals, create change, and deliver value. We are moving toward not defining work by its features or attributes, but in terms of what needs to get done, and figuring out the best way to do it. We call this [The Project Economy](ns_pmi_supp_sept_2019.pdf). 
 
 Supposedly this radical transformation will eliminate the case for distinction between project and operations as stated in ISO above:
->3.7    Projects and operations
-Project management fits within the general framework of management. Project management differs from other management disciplines by the temporary and unique nature of projects.Organizations perform work to achieve specific goals. Generally, this work may be categorized as either operations or projects. Operations and projects differ primarily as follows:
->* operations are performed by relatively stable teams through ongoing and repetitive processes and are focused on sustaining the organization;
->* projects are performed by temporary teams, are non-repetitive and provide unique deliverables
+
+> 3.7    Projects and operations
+> Project management fits within the general framework of management. Project management differs from other management disciplines by the temporary and unique nature of projects.Organizations perform work to achieve specific goals. Generally, this work may be categorized as either operations or projects. Operations and projects differ primarily as follows:
+> 
+> * operations are performed by relatively stable teams through ongoing and repetitive processes and are focused on sustaining the organization;
+> * projects are performed by temporary teams, are non-repetitive and provide unique deliverables
 
 ### Digital transformation
 
@@ -73,9 +74,9 @@ This project could be addressed with the proposed approach. Alas:
 * Data is provided through documents, either as unstructured text or pseudo-structured excel spreadsheets.
 * Data is actually formed through [BPMN choreography processes](https://blog.goodelearning.com/subject-areas/bpmn/bpmn-diagrams-choreography-a-short-video-guide/)
 
->A Choreography diagram is a type of process, but differs in purpose and behaviour from a standard BPMN process.
-Choreography diagrams define the way business participants coordinate their interactions. So, the focus is not on the work performed, but rather on the exchange of information between involved parties.
-This means a choreography diagram acts as a contract among all involved parties. Once this contract has been defined, each party can transform it into their private process or else all parties can work together to transform the choreography into a collaboration diagram.
+> A Choreography diagram is a type of process, but differs in purpose and behaviour from a standard BPMN process.
+> Choreography diagrams define the way business participants coordinate their interactions. So, the focus is not on the work performed, but rather on the exchange of information between involved parties.
+> This means a choreography diagram acts as a contract among all involved parties. Once this contract has been defined, each party can transform it into their private process or else all parties can work together to transform the choreography into a collaboration diagram.
 
 * These data are then stored as **Information** in various applications through their UI and as such stored as dispersed files
 * At this point cognition requires the construction of a ex post **cyber/physical CPS** that extracts those bits of disparate information, creates a unified storable model and eventually allows for re-construction of financial transaction that render the financial flows and situation regarding the project.
@@ -84,7 +85,7 @@ This means a choreography diagram acts as a contract among all involved parties.
 
 From https://whatis.techtarget.com/definition/Web-30
 
->Web 3.0 is the third generation of internet services for websites and applications that will focus on using a machine-based understanding of data to provide a data-driven and Semantic Web. The ultimate goal of Web 3.0 is to create more intelligent, connected and open websites.
+> Web 3.0 is the third generation of internet services for websites and applications that will focus on using a machine-based understanding of data to provide a data-driven and Semantic Web. The ultimate goal of Web 3.0 is to create more intelligent, connected and open websites.
 
 ### Technology stack
 
@@ -110,17 +111,17 @@ To be better understand the project purpose we will refer to Technology Readines
 
 **Priorities key: 1 Must, 2 Should, 3 Could, 4 Won't**
 
-TRL | Description | Priority | Notes
----------|----------|---------|----
- TRL1 | basic principles observed| 3| Bibliographic review
- TRL2|technology concept formulated | 2 | Bibliographic and market review
-| TRL3 | experimental proof of concept | 1 | Minimum viable product
-| TRL4 | technology validated in lab | 1 | case study
-| TRL5 | technology validated in relevant environment | 2 | application to other case studies
-| TRL6 | technology demonstrated in relevant environment | 4 | na
-| TRL7 | system prototype demonstration in operational environment| 4 | na
-| TRL8 | system complete and qualified | 4 | na
-| TRL9 | actual system proven in operational environment | 4 | na 
+| TRL  | Description                   | Priority                                                  | Notes                           |
+| ---- | ----------------------------- | --------------------------------------------------------- | ------------------------------- |
+| TRL1 | basic principles observed     | 3                                                         | Bibliographic review            |
+| TRL2 | technology concept formulated | 2                                                         | Bibliographic and market review |
+|      | TRL3                          | experimental proof of concept                             | 1                               |
+|      | TRL4                          | technology validated in lab                               | 1                               |
+|      | TRL5                          | technology validated in relevant environment              | 2                               |
+|      | TRL6                          | technology demonstrated in relevant environment           | 4                               |
+|      | TRL7                          | system prototype demonstration in operational environment | 4                               |
+|      | TRL8                          | system complete and qualified                             | 4                               |
+|      | TRL9                          | actual system proven in operational environment           | 4                               |
 
 So the purpose is to achieve TRL4, better but not essential TRL5, with basic effort on TRL1 and 2.
 
