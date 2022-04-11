@@ -1,7 +1,7 @@
 # Project Management API
 
 Every endpoint and specification is not final, it may change until the development is complete.
-For more details about endpoints 
+For more details about endpoints run FastApi then read the docs at 127.0.0.1/docs
 
 ## API Endpoints
 
