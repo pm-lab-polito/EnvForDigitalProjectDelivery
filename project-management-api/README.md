@@ -99,7 +99,7 @@ JSON example
 
 ### Documents returned
 
-Documents use a patch system in order to tracking edits. Patches follow the [jsonpatch](http://jsonpatch.com/ "jsonpatch") specification.
+Documents use a patch system to track changes. Patches follow the [jsonpatch](http://jsonpatch.com/ "jsonpatch") specification.
 
 ```json
 {
