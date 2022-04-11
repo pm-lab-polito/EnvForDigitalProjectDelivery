@@ -35,7 +35,8 @@ For more details about endpoints run FastApi then read the docs at 127.0.0.1/doc
 
 ## Schemas
 
-### Project POST schema (both YAML/JSON are accepted)
+### Project POST schema (accepts both YAML/JSON)
+YAML example
 ```yaml
 # Project name
 project_name: example_project
@@ -74,7 +75,8 @@ permissions:
       work_breakdown_structure: [ view, edit, delete ]
 ```
 
-### Document POST schema (both YAML/JSON are accepted)
+### Document POST schema (accepts both YAML/JSON)
+YAML example
 ```yaml
 project_charter:
     # jsonschema of the document
@@ -85,11 +87,63 @@ project_charter:
     additionalProperties: false
 ```
 
-### Document PUT schema
+### Document PUT schema (accepts both YAML/JSON)
+JSON example
 ```json
 {
   "overview": "Academic research for implementing an environment for digital delivery of projects",
   "impact": "Creation of the environment...",
   "organization": "PoliTo Project Management Lab"
+}
+```
+
+### Documents returned
+
+Documents use a patch system in order to tracking edits. Patches follow the [jsonpatch](http://jsonpatch.com/ "jsonpatch") specification.
+
+```json
+{
+    "project_name": "example_project",
+    "document_name": "project_charter",
+    "author_name": "doge",
+    "jsonschema": {
+        "properties": {
+            "overview": {
+                "type": "string"
+            },
+            "impact": {
+                "type": "string"
+            },
+            "organization": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false
+    },
+    "first": {
+        "overview": "Academic research for implementing an environment for digital delivery of projects",
+        "impact": "Creation of the environment...",
+        "organization": "PoliTo"
+    },
+    "last": {
+        "overview": "Academic research for implementing an environment for digital delivery of projects",
+        "impact": "Creation of the environment...",
+        "organization": "PoliTo Project Management Lab"
+    },
+    "creation_date": "2022-04-11T16:05:06.575202",
+    "patches": [
+        {
+            "id": 1,
+            "user_name": "doge",
+            "updated_date": "2022-04-11T16:05:57.498469",
+            "patch": [
+                {
+                    "op": "replace",
+                    "path": "/organization",
+                    "value": "PoliTo Project Management Lab"
+                }
+            ]
+        }
+    ]
 }
 ```
