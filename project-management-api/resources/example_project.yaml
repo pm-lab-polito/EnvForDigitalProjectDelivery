@@ -1,28 +1,35 @@
-example_project:
-  documents:
-    project_charter:
+# Project name
+project_name: example_project
+# document schemas
+documents:
+  # document name
+  project_charter:
+    # jsonschema of the document
+    properties:
+      overview: { type: string }
+      impact: { type: string }
+      organization: { type: string }
+    additionalProperties: false
+  # other document
+  work_breakdown_structure:
+    type: array
+    items:
       properties:
-        overview: { type: string }
-        impact: { type: string }
-        organization: { type: string }
+        code: { type: string }
+        name: { type: string }
+        description: { type: string }
       additionalProperties: false
-    work_breakdown_structure:
-      type: array
-      items:
-        properties:
-          code: { type: string }
-          name: { type: string }
-          description: { type: string }
-        additionalProperties: false
-  processes:
-    develop_project_charter:
-      inputs:
-      outputs: [ project_charter ]
-    develop_work_breakdown_structure:
-      inputs: [ project_charter ]
-      outputs: [ work_breakdown_structure ]
-  permissions:
-    doge:
-      documents:
-        project_charter: [ view, edit, delete ]
-        work_breakdown_structure: [ view, edit, delete ]
+processes:
+  # process name
+  develop_project_charter:
+    inputs:
+    outputs: [ project_charter ]
+  develop_work_breakdown_structure:
+    inputs: [ project_charter ]
+    outputs: [ work_breakdown_structure ]
+permissions:
+  # user name
+  dogeweb:
+    documents:
+      project_charter: [ view, edit, delete ]
+      work_breakdown_structure: [ view, edit, delete ]

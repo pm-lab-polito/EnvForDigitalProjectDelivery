@@ -49,10 +49,10 @@ class PermissionUtils:
 
 
 document_map = {
-    Permissions.create: (SysPermissions.edit_projects, ProjPermissions.create_documents, None),
-    Permissions.view: (SysPermissions.view_projects, ProjPermissions.view_documents, DocPermissions.view),
-    Permissions.edit: (SysPermissions.edit_projects, ProjPermissions.edit_documents, DocPermissions.edit),
-    Permissions.delete: (SysPermissions.edit_projects, ProjPermissions.delete_documents, DocPermissions.delete),
+    Permissions.create:           (SysPermissions.edit_projects, ProjPermissions.create_documents,           None),
+    Permissions.view:             (SysPermissions.view_projects, ProjPermissions.view_documents,             DocPermissions.view),
+    Permissions.edit:             (SysPermissions.edit_projects, ProjPermissions.edit_documents,             DocPermissions.edit),
+    Permissions.delete:           (SysPermissions.edit_projects, ProjPermissions.delete_documents,           DocPermissions.delete),
     Permissions.edit_permissions: (SysPermissions.edit_projects, ProjPermissions.edit_documents_permissions, DocPermissions.edit_permissions)
 }
 

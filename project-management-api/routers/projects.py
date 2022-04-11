@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 import routers.documents
 from datatypes.models import *
+from datatypes.schemas import ProjectCreateSchema
 from dependencies import *
 
 router = APIRouter(
@@ -22,16 +23,28 @@ def get_projects(session: Session = Depends(get_session),
     return [project.project_name for project in crud.get_projects(session)
             if has_project_permission(session, user, project, Permissions.view)]
 
-
+# todo fix openapi error
 @router.post("/",
              response_model=ProjectReturn,
-             dependencies=[Depends(require_project_permission(Permissions.create))])
+             dependencies=[Depends(require_project_permission(Permissions.create))],
+             openapi_extra={
+                 "requestBody": {
+                     "content": {
+                         "application/json": {
+                             "schema": ProjectCreateSchema.schema(),
+                         },
+                         "application/x-yaml": {
+                             "schema": ProjectCreateSchema.schema(),
+                         }
+                     }
+                 }
+             },
+             )
 async def create_project(user        : User    = Depends(get_current_active_user),
-                         request_body: Dict    = Depends(get_request_body),
+                         project_body: Dict    = Depends(get_request_body),
                          session     : Session = Depends(get_session)):
 
-    project_name = list(request_body.keys())[0]
-    project_body = request_body[project_name]
+    project_name = project_body['project_name']
 
     if crud.get_project_by_name(session, project_name) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Project already exists")

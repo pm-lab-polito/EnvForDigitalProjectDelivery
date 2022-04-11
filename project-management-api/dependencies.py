@@ -48,7 +48,9 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
+async def get_current_user(token  : str     = Depends(oauth2_scheme),
+                           session: Session = Depends(get_session)):\
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -122,8 +124,8 @@ class CheckProjectPermission:
     def __call__(self,
                  session   : Session        = Depends(get_session),
                  user      : User           = Depends(get_current_active_user),
-                 db_project: Project | None = Depends(get_project)
-                 ):
+                 db_project: Project | None = Depends(get_project)):
+
         if not has_project_permission(session, user, db_project, self.permission):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
@@ -151,18 +153,20 @@ async def get_request_body(request: Request):
     if "content-type" not in request.headers:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing Content-Type in header")
     content_type = request.headers['content-type']
-    if content_type == "application/json":
-        try:
-            request_body = await request.json()
-        except json.decoder.JSONDecodeError as err:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-    elif content_type == "application/x-yaml":
-        try:
-            request_body = yaml.safe_load(await request.body())
-        except Exception as err:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-    else:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+
+    match content_type:
+        case "application/json":
+            try:
+                request_body = await request.json()
+            except json.decoder.JSONDecodeError as err:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+        case "application/x-yaml":
+            try:
+                request_body = yaml.safe_load(await request.body())
+            except Exception as err:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+        case _:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     return request_body
 
 
