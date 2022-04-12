@@ -69,7 +69,7 @@ processes:
     outputs: [ work_breakdown_structure ]
 permissions:
   # user name
-  dogeweb:
+  doge:
     documents:
       project_charter: [ view, edit, delete ]
       work_breakdown_structure: [ view, edit, delete ]
