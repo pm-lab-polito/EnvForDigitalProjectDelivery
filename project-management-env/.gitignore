@@ -152,4 +152,4 @@ dmypy.json
 .pyre/
 
 # rest client test
-Accounts_API_TEST.http
+Accounts_CLIENT_TEST.http
