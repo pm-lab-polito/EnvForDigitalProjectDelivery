@@ -151,5 +151,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# rest client test
-Accounts_CLIENT_TEST.http
+# rest api test
+pm_env/backend/API_TEST/

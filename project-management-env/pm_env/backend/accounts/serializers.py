@@ -7,18 +7,21 @@ from django.utils import timezone
 
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        if validated_data.get('user_role'): 
+            instance.user_role = validated_data.get('user_role', instance.user_role)
+            instance.save()
+            return instance
+        else:
+            raise serializers.ValidationError({'detail':"attr 'user_role' not declared."})
+
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'email', 'user_type', 'is_active')
+        fields = ('id', 'first_name', 'last_name', 'email', 'user_role', 'is_active')
 
 
 # Register Serializer
 class RegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'first_name', 'last_name', 'email', 'password', 'user_type')
-        extra_kwargs = {'password': {'write_only': True}}
-
     def validate_password(self, password):
         if password != self.initial_data.get('confirm_password'):
             raise serializers.ValidationError("Passwords doesn't match")
@@ -34,11 +37,16 @@ class RegisterSerializer(serializers.ModelSerializer):
             first_name=data.get('first_name'),
             last_name=data.get('last_name'),
             email=email, 
-            password=data.get('password'),
-            user_type=data.get('user_type')
+            password=data.get('password')
         )
 
         return user
+
+
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name', 'email', 'password', 'user_role')
+        extra_kwargs = {'password': {'write_only': True}}
 
 
 # User Login Serializer

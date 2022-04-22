@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from knox.models import AuthToken
 from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
 from .models import User
-from .permissions import IsPMO, IsOwnerOrPMO
+from custom_permissions.permissions import (IsProjectManagementOffice, 
+        IsOwnerOrProjectManagementOffice)
 from django.contrib.auth import get_user_model
 
 
@@ -11,6 +12,7 @@ from django.contrib.auth import get_user_model
 class RegisterAPI(generics.GenericAPIView):
     name = 'register'
     serializer_class = RegisterSerializer
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -56,7 +58,7 @@ class LoginAPI(generics.GenericAPIView):
 #   Get single user instance
 class UserDetailsAPI(generics.RetrieveAPIView): 
     name = 'user-details'
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrPMO)
+    permission_classes = (IsOwnerOrProjectManagementOffice,)
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
 
@@ -64,7 +66,7 @@ class UserDetailsAPI(generics.RetrieveAPIView):
 #   Get user list
 class UserListAPI(generics.ListAPIView): 
     name = 'user-list'
-    permission_classes = (permissions.IsAuthenticated, IsPMO)
+    permission_classes = [IsProjectManagementOffice,]
     users = get_user_model().objects.all()
     # exclude admin users from total list
     queryset = users.exclude(is_superuser=True) 
@@ -74,17 +76,23 @@ class UserListAPI(generics.ListAPIView):
 #   Activate user account
 class ActivateUserAPI(generics.GenericAPIView):
     name = 'activate-user'
-    permission_classes = (permissions.IsAuthenticated, IsPMO)
+    permission_classes = [IsProjectManagementOffice,]
 
     def patch(self, request, pk):
         try:
             user = User.objects.get(pk=pk)
-            user.is_active = True
-            user.save()
-            return Response(
-                    {'detail': 'User activated successfully'},
-                    status=status.HTTP_204_NO_CONTENT
-                )
+            if user.user_role is not 'U':
+                user.is_active = True
+                user.save()
+                return Response(
+                        {'detail': 'User activated successfully'},
+                        status=status.HTTP_204_NO_CONTENT
+                    )
+            else: 
+                return Response(
+                        {'detail': 'User role must be defined before activation.'},
+                        status=status.HTTP_412_PRECONDITION_FAILED
+                    )
         except User.DoesNotExist:
             return Response(
                     {'detail': 'User does not exist'},
@@ -95,7 +103,7 @@ class ActivateUserAPI(generics.GenericAPIView):
 #   Deactivate user account
 class DeactivateUserAPI(generics.GenericAPIView):
     name = 'deactivate-user'
-    permission_classes = (permissions.IsAuthenticated, IsPMO)
+    permission_classes = [IsProjectManagementOffice,]
 
     def patch(self, request, pk):
         try:
@@ -113,4 +121,19 @@ class DeactivateUserAPI(generics.GenericAPIView):
                 )
 
 
+
+#   Update user role as ProjectManagementOffice
+class UpdateUserRoleAPI(generics.UpdateAPIView):
+    name = 'update-user-role'
+    serializer_class = UserSerializer
+    permission_classes = [IsProjectManagementOffice,]
+    queryset = User.objects.all()
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
+

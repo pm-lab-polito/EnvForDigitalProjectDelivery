@@ -44,6 +44,9 @@ INSTALLED_APPS = [
 
     #   project apps
     'accounts.apps.AccountsConfig',
+    'project.apps.ProjectConfig',
+    'project_charter.apps.ProjectCharterConfig',
+    'project_budget.apps.ProjectBudgetConfig',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +60,9 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'knox.auth.TokenAuthentication',
     ]

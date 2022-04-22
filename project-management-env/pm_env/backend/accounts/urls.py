@@ -1,7 +1,7 @@
 from django.urls import path
 from knox import views as knox_views
 from .views import (RegisterAPI, LoginAPI, ActivateUserAPI, DeactivateUserAPI, 
-                        UserDetailsAPI, UserListAPI)
+                        UserDetailsAPI, UserListAPI, UpdateUserRoleAPI)
 
 
 urlpatterns = [
@@ -12,4 +12,5 @@ urlpatterns = [
     path('', UserListAPI.as_view(), name='user-list'),
     path('activateuser/<int:pk>/', ActivateUserAPI.as_view(), name='activate-user'),
     path('deactivateuser/<int:pk>/', DeactivateUserAPI.as_view(), name='deactivate-user'),
+    path('update/user-role/<int:pk>/', UpdateUserRoleAPI.as_view(), name='update-user-role'),
 ]
