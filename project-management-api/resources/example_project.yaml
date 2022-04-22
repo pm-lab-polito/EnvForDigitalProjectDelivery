@@ -1,24 +1,31 @@
 # Project name
 project_name: example_project
-# document schemas
 documents:
-  # document name
   project_charter:
     # jsonschema of the document
-    properties:
-      overview: { type: string }
-      impact: { type: string }
-      organization: { type: string }
-    additionalProperties: false
-  # other document
-  work_breakdown_structure:
-    type: array
-    items:
+    jsonschema:
       properties:
-        code: { type: string }
-        name: { type: string }
-        description: { type: string }
+        overview: { type: string }
+        impact: { type: string }
+        organization: { type: string }
       additionalProperties: false
+    computed_fields:
+      scope:
+        reference_document: work_breakdown_structure
+        jsonpath: $.elements[?(@.level == 1)].name
+  work_breakdown_structure:
+    jsonschema:
+      properties:
+        elements:
+          type: array
+          items:
+            properties:
+              level: { type: integer }
+              code: { type: string }
+              name: { type: string }
+              description: { type: string }
+            additionalProperties: false
+        additionalProperties: false
 processes:
   # process name
   develop_project_charter:
@@ -29,7 +36,7 @@ processes:
     outputs: [ work_breakdown_structure ]
 permissions:
   # user name
-  dogeweb:
+  doge:
     documents:
       project_charter: [ view, edit, delete ]
       work_breakdown_structure: [ view, edit, delete ]

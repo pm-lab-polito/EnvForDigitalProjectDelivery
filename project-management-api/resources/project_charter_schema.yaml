@@ -1,0 +1,12 @@
+project_charter:
+  # jsonschema of the document
+  jsonschema:
+    properties:
+      overview: { type: string }
+      impact: { type: string }
+      organization: { type: string }
+    additionalProperties: false
+  computed_fields:
+    scope:
+      reference_document: work_breakdown_structure
+      jsonpath: $.elements[?(@.level == 1)].name

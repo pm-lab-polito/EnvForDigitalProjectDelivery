@@ -3,6 +3,7 @@ import operator
 from functools import reduce
 
 import jsonpatch
+import jsonpath_ng.ext
 from fastapi import APIRouter
 
 from datatypes.models import *
@@ -25,15 +26,31 @@ async def add_document_schema_to_project(request_body: Dict    = Depends(get_req
 
     document_name = list(request_body.keys())[0]
     document_body = request_body[document_name]
+
     if crud.get_document_of_project(session,
                                     db_project.project_name,
                                     document_name) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Document already exists")
 
+    if 'jsonschema' not in document_body.keys():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing jsonschema of document")
+
+    jsonschema = document_body['jsonschema']
+
     db_doc = Document(project_name=db_project.project_name,
                       document_name=document_name,
                       author_name=user.user_name,
-                      jsonschema=document_body)
+                      jsonschema=jsonschema)
+
+    if "computed_fields" in document_body.keys():
+        computed_fields = document_body['computed_fields']
+
+        for field_name, field_body in computed_fields.items():
+            session.add(ComputedField(project_name            =db_project.project_name,
+                                      field_document_name     =document_name,
+                                      field_name              =field_name,
+                                      reference_document_name =field_body['reference_document'],
+                                      jsonpath                =field_body['jsonpath']))
 
     for permission in (DocPermissions.view, DocPermissions.edit, DocPermissions.delete):
         session.add(DocumentPermission(project_name=db_project.project_name, document_name=document_name,
@@ -70,6 +87,10 @@ async def put_document_to_project(document_body: Dict     = Depends(get_request_
         diff = Patch(project_name=db_project.project_name, patch=patch, user_name=user.user_name)
         db_doc.patches.append(diff)
 
+    for computed_field in db_doc.computed_fields_reference:
+        jsonpath_expr = jsonpath_ng.ext.parse(computed_field.jsonpath)
+        computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_doc.last)))
+
     session.add(db_doc)
     session.commit()
     session.refresh(db_doc)
@@ -100,21 +121,24 @@ async def patch_document_of_project(document_body: Dict     = Depends(get_reques
                                          session=session)
 
 @router.get("/{document_name}",
-            # response_model=DocumentReturn,
+            response_model=DocumentReturn,
             dependencies=[Depends(get_current_active_user),
                           Depends(require_document_permission(Permissions.view))])
 @router.get("/{document_name}/{field}/{path:path}",
-            # response_model=DocumentReturn,
+            response_model=DocumentReturn,
             dependencies=[Depends(get_current_active_user),
                           Depends(require_document_permission(Permissions.view))])
-def get_document_of_project(field: str | None = None, path: str | None = None, db_doc: Document = Depends(get_document)):
-
-    def find(element, json):
-        return reduce(operator.getitem, element.split('/'), json)
+def get_document_of_project(field : str | None = None,
+                            path  : str | None = None,
+                            db_doc: Document   = Depends(get_document)):
 
     if field is None:
         return db_doc
+
     element = getattr(db_doc, field)
+
+    def find(el, json_doc):
+        return reduce(operator.getitem, el.split('/'), json_doc)
 
     if path is not None and path != "":
         element = find(path, element)
@@ -125,12 +149,12 @@ def get_document_of_project(field: str | None = None, path: str | None = None, d
 @router.post("/{document_name}/last/{path:path}",
             response_model=DocumentReturn,
             dependencies=[Depends(require_document_permission(Permissions.edit))])
-async def post_path_document_of_project(path: str | None = None,
-                                        session: Session = Depends(get_session),
-                                        user: User = Depends(get_current_active_user),
-                                        document_body: Dict = Depends(get_request_body),
-                                        db_project: Project = Depends(get_project),
-                                        db_doc: Document = Depends(get_document)):
+async def post_path_document_of_project(path         : str | None = None,
+                                        session      : Session    = Depends(get_session),
+                                        user         : User       = Depends(get_current_active_user),
+                                        document_body: Dict       = Depends(get_request_body),
+                                        db_project   : Project    = Depends(get_project),
+                                        db_doc       : Document   = Depends(get_document)):
 
     last_el = path.split('/')[-1]
 
@@ -143,14 +167,6 @@ async def post_path_document_of_project(path: str | None = None,
             return obj[int(item)]
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-
-    # for el in path.split('/')[:-1]:
-    #     if type(element) is dict:
-    #         element = element[el]
-    #     elif type(element) is list:
-    #         element = element[int(el)]
-    #     else:
-    #         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
     element = reduce(get_item, path.split('/')[:-1], last)
 
