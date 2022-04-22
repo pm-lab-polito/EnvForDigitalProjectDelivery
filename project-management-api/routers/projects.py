@@ -53,13 +53,21 @@ async def create_project(user        : User    = Depends(get_current_active_user
     session.add(project)
 
     if project_body is not None:
-        if project_body['documents'] is not None:
-            document_list = [Document(project_name=project_name,
-                                      document_name=doc,
-                                      author_name=user.user_name,
-                                      jsonschema=body)
-                             for doc, body in project_body['documents'].items()]
-            session.add_all(document_list)
+        if "documents" in project_body.keys():
+
+            for doc, body in project_body['documents'].items():
+                await routers.documents.add_document_schema_to_project(request_body={doc: body},
+                                                                       user=user,
+                                                                       db_project=project,
+                                                                       session=session)
+            # document_list = [Document(project_name=project_name,
+            #                           document_name=doc,
+            #                           author_name=user.user_name,
+            #                           jsonschema=body)
+            #                  for doc, body in project_body['documents'].items()]
+            # session.add_all(document_list)
+
+            document_names = project_body['documents'].keys()
 
             process_list = []
 
@@ -70,34 +78,36 @@ async def create_project(user        : User    = Depends(get_current_active_user
                                     process_name =proc_name,
                                     document_role=doc_role))
 
-            document_names = map(lambda d: d.document_name, document_list)
+            # document_names = map(lambda d: d.document_name, document_list)
 
-            for process_name, process_body in project_body['processes'].items():
-                process = Process(project_name=project_name, process_name=process_name)
-                if process_body['inputs'] is not None:
-                    for document_name in process_body['inputs']:
-                        if document_name in document_names:
-                            append_process(process_name, document_name, DocumentRole.input)
-                if process_body['outputs'] is not None:
-                    for document_name in process_body['outputs']:
-                        if document_name in document_names:
-                            append_process(process_name, document_name, DocumentRole.output)
-                process_list.append(process)
-            session.add_all(process_list)
+            if 'processes' in project_body.keys():
+                for process_name, process_body in project_body['processes'].items():
+                    process = Process(project_name=project_name, process_name=process_name)
+                    if process_body['inputs'] is not None:
+                        for document_name in process_body['inputs']:
+                            if document_name in document_names:
+                                append_process(process_name, document_name, DocumentRole.input)
+                    if process_body['outputs'] is not None:
+                        for document_name in process_body['outputs']:
+                            if document_name in document_names:
+                                append_process(process_name, document_name, DocumentRole.output)
+                    process_list.append(process)
+                session.add_all(process_list)
 
-            permission_list = []
-            for user_name, user_permissions_body in project_body['permissions'].items():
-                if crud.get_user(session, user_name) is not None:
-                    for document_name, perms in user_permissions_body['documents'].items():
-                        for permission_name in perms:
-                            if (any(x for x in document_list if x.document_name == document_name)
-                                    and any(x for x in DocPermissions if x.name == permission_name)):
-                                permission_list.append(
-                                    DocumentPermission(project_name =project_name,
-                                                       user_name    =user_name,
-                                                       document_name=document_name,
-                                                       permission   =permission_name))
-            session.add_all(permission_list)
+            if 'permissions' in project_body.keys():
+                permission_list = []
+                for user_name, user_permissions_body in project_body['permissions'].items():
+                    if crud.get_user(session, user_name) is not None:
+                        for document_name, perms in user_permissions_body['documents'].items():
+                            for permission_name in perms:
+                                if (any(x for x in document_names if x == document_name)
+                                        and any(x for x in DocPermissions if x.name == permission_name)):
+                                    permission_list.append(
+                                        DocumentPermission(project_name =project_name,
+                                                           user_name    =user_name,
+                                                           document_name=document_name,
+                                                           permission   =permission_name))
+                session.add_all(permission_list)
 
     session.commit()
 

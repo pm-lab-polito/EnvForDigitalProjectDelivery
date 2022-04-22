@@ -1,9 +1,10 @@
 import enum
+from collections import defaultdict
 from datetime import datetime
 from typing import Dict, List
 
-import sqlalchemy.orm
-from sqlalchemy import Column, Enum, ForeignKey, String
+from pydantic import validator
+from sqlalchemy import Column, Enum
 from sqlmodel import SQLModel, Field, Relationship, JSON
 
 
@@ -124,7 +125,7 @@ class Document(SQLModel, table=True):
     # field name   | type            | options
     project_name   : str             = Field(default=None, primary_key=True, foreign_key=Project.Fields.project_name)
     document_name  : str             = Field(default=None, primary_key=True)
-    author_name    : str             = Field(default=None, foreign_key=User.Fields.user_name)
+    author_name    : str             = Field(default=None,                   foreign_key=User.Fields.user_name)
     jsonschema     : Dict            = Field(default={}, sa_column=Column(JSON))
     first          : Dict            = Field(default={}, sa_column=Column(JSON))
     last           : Dict            = Field(default={}, sa_column=Column(JSON))
@@ -141,6 +142,14 @@ class Document(SQLModel, table=True):
     documents_processes : List["DocumentProcess"]    = Relationship(back_populates="document",
                                                                     sa_relationship_kwargs={
                                                                         "cascade": "all, delete, delete-orphan"})
+    computed_fields     : List["ComputedField"]      = \
+        Relationship(sa_relationship_kwargs={"primaryjoin": 'Document.document_name==ComputedField.field_document_name',
+                                             "lazy": "joined",
+                                             "cascade": "all, delete, delete-orphan"})
+    computed_fields_reference: List["ComputedField"] = \
+        Relationship(back_populates="reference_document",
+                     sa_relationship_kwargs={"primaryjoin": 'Document.document_name==ComputedField.reference_document_name',
+                                             "lazy": "joined"})
 
     class Fields(metaclass=StringFields):
         table_name      = "document"
@@ -246,6 +255,28 @@ class DocumentProcess(SQLModel, table=True):
         document_name = "document_name"
         document_role = "document_role"
 
+# https://github.com/tiangolo/sqlmodel/issues/10
+class ComputedField(SQLModel, table=True):
+    # field name           | type | options
+    project_name           : str  = Field(default=None, primary_key=True, foreign_key=Project.Fields.project_name)
+    field_document_name    : str  = Field(default=None, primary_key=True, foreign_key=Document.Fields.document_name)
+    reference_document_name: str  = Field(default=None,                   foreign_key=Document.Fields.document_name)
+    field_name             : str  = Field(default=None, primary_key=True)
+    jsonpath               : str  = Field(nullable=False)
+    field_value            : List | None = Field(default=[], sa_column=Column(JSON))
+
+    # relationship name | type     | options
+    field_document      : Document = Relationship(sa_relationship_kwargs={"primaryjoin": f'Document.document_name==ComputedField.field_document_name', "lazy": "joined"})
+    reference_document  : Document = Relationship(sa_relationship_kwargs={"primaryjoin": f'Document.document_name==ComputedField.reference_document_name', "lazy": "joined"})
+
+    class Fields(metaclass=StringFields):
+        table_name              = "computedfield"
+        project_name            = "project_name"
+        field_document_name     = "field_document_name"
+        reference_document_name = "reference_document_name"
+        field_name              = "field_name"
+        jsonpath                = "jsonpath"
+        field_value             = "field_value"
 
 class PatchReturn(SQLModel):
     id           : int      | None
@@ -258,29 +289,42 @@ class PatchReturn(SQLModel):
     class Config:
         arbitrary_types_allowed = True
 
+class ComputedFieldReturn(SQLModel):
+    field_name : str  | None = None
+    field_value: List | None = None
 
 class DocumentReturn(SQLModel):
-    project_name : str      | None
-    document_name: str      | None
-    author_name  : str      | None
-    jsonschema   : Dict     | None
-    first        : Dict     | None
-    last         : Dict     | None
-    creation_date: datetime | None
-    patches      : List[PatchReturn] = []
+    project_name   : str      | None
+    document_name  : str      | None
+    author_name    : str      | None
+    jsonschema     : Dict     | None
+    first          : Dict     | None
+    last           : Dict     | None
+    creation_date  : datetime | None
+    patches        : List[PatchReturn]         = []
+    computed_fields: List[ComputedFieldReturn] = []
 
     class Config:
         arbitrary_types_allowed = True
 
+    @validator('computed_fields')
+    def transform_comp_fields(cls, v: list[ComputedFieldReturn]):
+        tmp = list(map(lambda x: (x.field_name, x.field_value), v))
+        res = defaultdict(list)
+        for k, v in tmp:
+            res[k] = v
+        return res
+
+
 class ProjectReturn(SQLModel):
     project_name: str | None
     owner_name  : str | None
-    documents: List[DocumentReturn] = []
+    documents   : List[DocumentReturn] = []
 
 class ProjectPermissionsInput(SQLModel):
-    user_name: str
+    user_name  : str
     permissions: List[ProjPermissions] = []
 
 class DocumentPermissionsInput(SQLModel):
-    user_name: str
+    user_name  : str
     permissions: List[DocPermissions] = []

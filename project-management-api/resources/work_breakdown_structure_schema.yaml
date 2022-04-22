@@ -1,0 +1,13 @@
+work_breakdown_structure:
+  jsonschema:
+    properties:
+      elements:
+        type: array
+        items:
+          properties:
+            level: {type: integer}
+            code: { type: string }
+            name: { type: string }
+            description: { type: string }
+          additionalProperties: false
+      additionalProperties: false
