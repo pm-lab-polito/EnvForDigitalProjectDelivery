@@ -4,11 +4,7 @@ from project_charter.serializers import ProjectCharterSerializer
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    project_charter = ProjectCharterSerializer(many=True, required=False)
-
-    class Meta:
-        model = Project
-        fields = ('id', 'project_name', 'author', 'created', 'project_charter')
+    project_charter = ProjectCharterSerializer(required=False)
 
     def create(self, data):
         project = Project.objects.create(
@@ -24,3 +20,9 @@ class ProjectSerializer(serializers.ModelSerializer):
             return instance
         else: 
             raise serializers.ValidationError({'detail':"'project_name' attribute  does not exist"})
+
+    
+    
+    class Meta:
+        model = Project
+        fields = ('id', 'project_name', 'author', 'created', 'project_charter')

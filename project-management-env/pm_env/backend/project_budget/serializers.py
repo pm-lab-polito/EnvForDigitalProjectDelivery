@@ -3,15 +3,24 @@ from .models import ProjectBudget
 
 
 class CreateUpdateListSerializer(serializers.ListSerializer):
-    def create(self, validated_data):
-        return [self.child.create(attrs) for attrs in validated_data]
+    def create(self, validated_data, *args, **kwargs):
+        project_charter = self.context.get('request').parser_context.get('kwargs') 
+
+        return [self.child.create(attrs) for attrs in validated_data ]
 
 
 class ProjectBudgetSerializer(serializers.ModelSerializer):    
 
-    def create(self, validated_data):
+    def create(self, validated_data, *args, **kwargs):
         instance = ProjectBudget(**validated_data)
-        instance.save()
+        try:
+            proj_budget = ProjectBudget.objects.get(project_charter=instance.project_charter, year=instance.year)
+            proj_budget.budget = instance.budget
+            proj_budget.save()
+
+        except ProjectBudget.DoesNotExist:
+            instance.save()
+            
         return instance
         
     def update(self, instance, validated_data):

@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, status
+from rest_framework import generics, status
 from .serializers import ProjectCharterSerializer, BusinessCaseSWOTSerializer
 from rest_framework.response import Response
 from custom_permissions.permissions import IsProjectManagementOffice, IsProjectManager
@@ -8,7 +8,7 @@ from .models import ProjectCharter, BusinessCaseSWOT
 class ProjectCharterAPI(generics.GenericAPIView):
     name = 'create-project-charter'
     serializer_class = ProjectCharterSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager]
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
 
     def post(self, request, format='json'):
         serializer = self.get_serializer(data=request.data)
@@ -28,7 +28,7 @@ class ProjectCharterAPI(generics.GenericAPIView):
 class DeleteProjectCharterAPI(generics.DestroyAPIView):
     name = 'delete-project'
     serializer_class = ProjectCharterSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager]
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
     queryset = ProjectCharter.objects.all()
 
 
@@ -36,7 +36,7 @@ class DeleteProjectCharterAPI(generics.DestroyAPIView):
 class EditProjectCharterAPI(generics.UpdateAPIView):
     name = 'edit-project-name'
     serializer_class = ProjectCharterSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager]
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
     queryset = ProjectCharter.objects.all()
 
     def partial_update(self, request, *args, **kwargs):
@@ -55,7 +55,7 @@ class EditProjectCharterAPI(generics.UpdateAPIView):
 #   Get a project charter
 class ProjectCharterDetailsAPI(generics.RetrieveAPIView): 
     name = 'project-charter-details'
-    permission_classes = (permissions.IsAuthenticated,) # IsProjectManagementOffice | IsProjectManager)
+    permission_classes = [] # IsProjectManagementOffice | IsProjectManager)
     queryset = ProjectCharter.objects.all()
     serializer_class = ProjectCharterSerializer
 
@@ -66,7 +66,7 @@ class ProjectCharterDetailsAPI(generics.RetrieveAPIView):
 class BusinessCaseSWOTAPI(generics.GenericAPIView):
     name = 'add-business-case-swot'
     serializer_class = BusinessCaseSWOTSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager]
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
 
     # Create a new project charter
     def post(self, request, format='json'):
@@ -86,14 +86,14 @@ class BusinessCaseSWOTAPI(generics.GenericAPIView):
 class DeleteBusinessCaseSWOTAPI(generics.DestroyAPIView):
     name = 'delete-swot'
     serializer_class = BusinessCaseSWOTSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager]
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
     queryset = BusinessCaseSWOT.objects.all()
 
 
 #   Get single swot instance
 class SWOTDetailsAPI(generics.RetrieveAPIView): 
     name = 'swot-details'
-    permission_classes = (permissions.IsAuthenticated,) # IsProjectManagementOffice | IsProjectManager)
+    permission_classes = [] # IsProjectManagementOffice | IsProjectManager)
     queryset = BusinessCaseSWOT.objects.all()
     serializer_class = BusinessCaseSWOTSerializer
 
@@ -103,7 +103,7 @@ class SWOTListOfProjectCharterAPI(generics.ListAPIView):
     name = 'swot-list'
     queryset = BusinessCaseSWOT.objects.all()
     serializer_class = BusinessCaseSWOTSerializer
-    permission_classes = (permissions.IsAuthenticated,) 
+    permission_classes = [] # IsProjectManagementOffice | IsProjectManager)
 
     def list(self, request, pk):
         queryset = self.get_queryset()

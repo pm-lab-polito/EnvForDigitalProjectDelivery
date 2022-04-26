@@ -4,7 +4,7 @@ from .views import (ProjectBudgetAPI, DeleteProjectBudgetAPI, DeleteTotalProject
 
 
 urlpatterns = [
-    path('set/', ProjectBudgetAPI.as_view(), name='set-project-budget'),
+    path('set/<int:project_charter>/', ProjectBudgetAPI.as_view(), name='set-project-budget'),
     path('delete/<int:pk>/', DeleteProjectBudgetAPI.as_view(), name='delete-project-budget'),
     path('delete/total/<int:pk>/', DeleteTotalProjectBudgetAPI.as_view(), name='delete-total-project-budget'),
     path('details/<int:pk>/', ProjectBudgetDetailsAPI.as_view(), name='project-budget-details'),

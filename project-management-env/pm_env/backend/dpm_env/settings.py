@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     #   3rd party apps
     'rest_framework',
     'knox', 
+    'django_extensions',
 
     #   project apps
     'accounts.apps.AccountsConfig',

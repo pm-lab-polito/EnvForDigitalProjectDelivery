@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, status
+from rest_framework import generics, status
 from project_budget.models import ProjectBudget
 from .serializers import ProjectBudgetSerializer
 from rest_framework.response import Response
@@ -6,14 +6,18 @@ from custom_permissions.permissions import IsProjectManagementOffice, IsProjectM
 
 #   Set a budget of a project charter
 class ProjectBudgetAPI(generics.ListCreateAPIView):
-    name = 'create-project-budget'
+    name = 'set-project-budget'
     serializer_class = ProjectBudgetSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager]
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
 
     def get_serializer(self, *args, **kwargs):
         if isinstance(kwargs.get("data", {}), list):
             kwargs["many"] = True
-
+        
+        project_charter = self.kwargs.get('project_charter')
+        for attrs in self.request.data:
+            attrs["project_charter"]=project_charter 
+        
         return super(ProjectBudgetAPI, self).get_serializer(*args, **kwargs)
 
 
@@ -22,7 +26,7 @@ class ProjectBudgetAPI(generics.ListCreateAPIView):
 class DeleteProjectBudgetAPI(generics.DestroyAPIView):
     name = 'delete-project-budget'
     serializer_class = ProjectBudgetSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager]
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
     queryset = ProjectBudget.objects.all()
 
 
@@ -30,7 +34,7 @@ class DeleteProjectBudgetAPI(generics.DestroyAPIView):
 class DeleteTotalProjectBudgetAPI(generics.GenericAPIView):
     name = 'delete-project-budget'
     serializer_class = ProjectBudgetSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager]
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
     
     def delete(self, request, pk, *args, **kwargs):
         total_budget = ProjectBudget.objects.all().filter(project_charter=pk)
@@ -43,7 +47,7 @@ class DeleteTotalProjectBudgetAPI(generics.GenericAPIView):
 #   Get a single instance of a project budget
 class ProjectBudgetDetailsAPI(generics.RetrieveAPIView): 
     name = 'project-budget-details'
-    permission_classes = (permissions.IsAuthenticated,) # IsProjectManagementOffice | IsProjectManager)
+    permission_classes = () # IsProjectManagementOffice | IsProjectManager)
     queryset = ProjectBudget.objects.all()
     serializer_class = ProjectBudgetSerializer
 
@@ -51,7 +55,7 @@ class ProjectBudgetDetailsAPI(generics.RetrieveAPIView):
 #   Get total budget of a project 
 class TotalProjectBudgetAPI(generics.ListAPIView): 
     name = 'total-project-budget'
-    permission_classes = (permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager)
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
     queryset = ProjectBudget.objects.all()
     serializer_class = ProjectBudgetSerializer
 
@@ -66,7 +70,7 @@ class TotalProjectBudgetAPI(generics.ListAPIView):
 class EditProjectBudgetAPI(generics.UpdateAPIView):
     name = 'edit-project-budget'
     serializer_class = ProjectBudgetSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice | IsProjectManager]
+    permission_classes = [IsProjectManagementOffice | IsProjectManager,]
     queryset = ProjectBudget.objects.all()
 
     def partial_update(self, request, *args, **kwargs):

@@ -4,7 +4,7 @@ from accounts.models import User
 
 
 class ProjectCharter(models.Model):
-    project = models.ForeignKey(Project, related_name='project_charter', on_delete=models.CASCADE)
+    project = models.OneToOneField(Project, related_name='project_charter', on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)

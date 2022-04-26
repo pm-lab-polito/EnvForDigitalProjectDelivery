@@ -1,4 +1,4 @@
-from rest_framework import generics, status, permissions
+from rest_framework import generics, status
 from .serializers import ProjectSerializer
 from rest_framework.response import Response
 from custom_permissions.permissions import IsProjectManagementOffice
@@ -8,7 +8,7 @@ from .models import Project
 class ProjectAPI(generics.GenericAPIView):
     name = 'create-project'
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice]
+    permission_classes = [IsProjectManagementOffice,]
 
     # Create a new project
     def post(self, request, format='json'):
@@ -28,7 +28,7 @@ class ProjectAPI(generics.GenericAPIView):
 class EditProjectAPI(generics.UpdateAPIView):
     name = 'edit-project-name'
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice]
+    permission_classes = [IsProjectManagementOffice,]
     queryset = Project.objects.all()
     http_method_names = ['patch']
 
@@ -49,14 +49,14 @@ class EditProjectAPI(generics.UpdateAPIView):
 class DeleteProjectAPI(generics.DestroyAPIView):
     name = 'delete-project'
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated, IsProjectManagementOffice]
+    permission_classes = [IsProjectManagementOffice,]
     queryset = Project.objects.all()
 
 
 #   Get a project 
 class ProjectDetailsAPI(generics.RetrieveAPIView): 
     name = 'project-details'
-    permission_classes = (permissions.IsAuthenticated,) # IsProjectManagementOffice)
+    permission_classes = () # IsProjectManagementOffice)
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     
@@ -64,6 +64,6 @@ class ProjectDetailsAPI(generics.RetrieveAPIView):
 #   Get a project list 
 class ProjectListAPI(generics.ListAPIView): 
     name = 'project-list'
-    permission_classes = (permissions.IsAuthenticated, IsProjectManagementOffice)
+    permission_classes = (IsProjectManagementOffice, )
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
