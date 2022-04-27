@@ -51,7 +51,7 @@ documents:
       additionalProperties: false
     computed_fields:
       # computed fields of the document
-      scope:
+      wbs:
         reference_document: work_breakdown_structure
         jsonpath: $.elements[?(@.level == 1)].name
   work_breakdown_structure:
@@ -99,7 +99,7 @@ project_charter:
       organization: { type: string }
     additionalProperties: false
   computed_fields:
-    scope:
+    wbs:
       reference_document: work_breakdown_structure
       jsonpath: $.elements[?(@.level == 1)].name
 ```
@@ -164,7 +164,7 @@ Documents are returned in JSON.
         }
     ],
     "computed_fields": {
-          "scope": [
+          "wbs": [
               "Task 1",
               "Task 2"
           ]
