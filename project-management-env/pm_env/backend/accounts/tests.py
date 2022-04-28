@@ -96,7 +96,7 @@ class AccountsTest(APITestCase):
 
     def patch_update_user_role(self, user_id, role, token):
         url = reverse(views.UpdateUserRoleAPI.name, None, {user_id})
-        auth_token = 'Token '+token
+        auth_token = f'Token {token}'
         user_role = {"user_role": role}
         response = self.client.patch(url, data=user_role, HTTP_AUTHORIZATION=auth_token, format='json')
         return response
@@ -123,7 +123,7 @@ class AccountsTest(APITestCase):
 
     def get_user_details(self, user_id, token):
         url = reverse(views.UserDetailsAPI.name, None, {user_id})
-        auth_token = 'Token '+token
+        auth_token = f'Token {token}'
         response = self.client.get(url, HTTP_AUTHORIZATION=auth_token, format='json')
         return response
 
@@ -176,7 +176,7 @@ class AccountsTest(APITestCase):
 
     def get_user_list(self, token):
         url = reverse(views.UserListAPI.name)
-        auth_token = 'Token '+token
+        auth_token = f'Token {token}'
         response = self.client.get(url, HTTP_AUTHORIZATION=auth_token, format='json')
         return response
     
@@ -225,7 +225,7 @@ class AccountsTest(APITestCase):
 
         # not pmo_user
         login_response = self.post_user_login(ps_user)
-        token = 'Token ' + login_response.data['auth_token']
+        token = f'Token {login_response.data["auth_token"]}'
         response1 = self.client.patch(url_deactivate, HTTP_AUTHORIZATION = token, format='json')
         response2 = self.client.patch(url_activate, HTTP_AUTHORIZATION = token, format='json')
         assert response1.status_code == status.HTTP_403_FORBIDDEN
@@ -236,7 +236,7 @@ class AccountsTest(APITestCase):
         reg_response = self.post_user_registration(pmo_user)
         self.activate_user(reg_response, 'PMO')
         login_response = self.post_user_login(pmo_user)
-        token = 'Token ' + login_response.data['auth_token']
+        token = f'Token {login_response.data["auth_token"]}'
         saved_user = User.objects.get(id=user_id)
         assert saved_user.is_active == True
 
@@ -263,7 +263,7 @@ class AccountsTest(APITestCase):
         auth_tokens = AuthToken.objects.all()
         assert auth_tokens.count() == 1
 
-        token = 'Token ' + login.data['auth_token']
+        token = f'Token {login.data["auth_token"]}'
         url = reverse('knox-logout')
         response = self.client.post(url, HTTP_AUTHORIZATION=token, format='json')
         assert response.status_code == status.HTTP_204_NO_CONTENT

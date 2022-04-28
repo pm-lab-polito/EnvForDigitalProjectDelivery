@@ -4,13 +4,10 @@ from .models import ProjectBudget
 
 class CreateUpdateListSerializer(serializers.ListSerializer):
     def create(self, validated_data, *args, **kwargs):
-        project_charter = self.context.get('request').parser_context.get('kwargs') 
-
         return [self.child.create(attrs) for attrs in validated_data ]
 
 
 class ProjectBudgetSerializer(serializers.ModelSerializer):    
-
     def create(self, validated_data, *args, **kwargs):
         instance = ProjectBudget(**validated_data)
         try:

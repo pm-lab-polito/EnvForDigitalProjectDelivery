@@ -26,7 +26,7 @@ class ProjectCharterAPI(generics.GenericAPIView):
 
 #   Delete an existing project charter
 class DeleteProjectCharterAPI(generics.DestroyAPIView):
-    name = 'delete-project'
+    name = 'delete-project-charter'
     serializer_class = ProjectCharterSerializer
     permission_classes = [IsProjectManagementOffice | IsProjectManager,]
     queryset = ProjectCharter.objects.all()
@@ -34,7 +34,7 @@ class DeleteProjectCharterAPI(generics.DestroyAPIView):
 
 #   Edit a project charter
 class EditProjectCharterAPI(generics.UpdateAPIView):
-    name = 'edit-project-name'
+    name = 'edit-project-charter'
     serializer_class = ProjectCharterSerializer
     permission_classes = [IsProjectManagementOffice | IsProjectManager,]
     queryset = ProjectCharter.objects.all()
@@ -54,7 +54,7 @@ class EditProjectCharterAPI(generics.UpdateAPIView):
 
 #   Get a project charter
 class ProjectCharterDetailsAPI(generics.RetrieveAPIView): 
-    name = 'project-charter-details'
+    name = 'details-project-charter'
     permission_classes = [] # IsProjectManagementOffice | IsProjectManager)
     queryset = ProjectCharter.objects.all()
     serializer_class = ProjectCharterSerializer
@@ -100,7 +100,7 @@ class SWOTDetailsAPI(generics.RetrieveAPIView):
 
 #   Get swot list of project charter
 class SWOTListOfProjectCharterAPI(generics.ListAPIView):
-    name = 'swot-list'
+    name = 'swot-list-of-project-charter'
     queryset = BusinessCaseSWOT.objects.all()
     serializer_class = BusinessCaseSWOTSerializer
     permission_classes = [] # IsProjectManagementOffice | IsProjectManager)

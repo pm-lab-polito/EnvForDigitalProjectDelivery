@@ -1,13 +1,10 @@
 from rest_framework import serializers
 from .models import ProjectCharter, BusinessCaseSWOT
 from project_budget.serializers import ProjectBudgetSerializer
+from rest_framework.validators import UniqueValidator
 
 
 class BusinessCaseSWOTSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BusinessCaseSWOT
-        fields = ['id', 'project_charter', 'swot_type', 'content']
-
     def create(self, data):
         swot = BusinessCaseSWOT.objects.create(
             project_charter = data.get('project_charter'),
@@ -16,17 +13,15 @@ class BusinessCaseSWOTSerializer(serializers.ModelSerializer):
         )
         return swot
 
-
+    class Meta:
+        model = BusinessCaseSWOT
+        fields = ['id', 'project_charter', 'swot_type', 'content']
+        
 
 class ProjectCharterSerializer(serializers.ModelSerializer):
     bus_case_swot = BusinessCaseSWOTSerializer(many=True, required=False)
     project_budget = ProjectBudgetSerializer(many=True, required=False)
     
-    class Meta:
-        model = ProjectCharter
-        fields = ('id', 'project', 'author', 'created', 'last_updated',
-                    'sow', 'contract', 'business_case', 'bus_case_swot', 'project_budget')
-
     def create(self, data):
         project_charter = ProjectCharter.objects.create(
             project = data.get('project'),
@@ -47,3 +42,17 @@ class ProjectCharterSerializer(serializers.ModelSerializer):
         else:
             raise serializers.ValidationError({'detail':"At least, one attribute must be provided (sow/contract/business_case)"})
        
+    class Meta:
+        model = ProjectCharter
+        fields = ('id', 'project', 'author', 'created', 'last_updated',
+                    'sow', 'contract', 'business_case', 'bus_case_swot', 'project_budget')
+        extra_kwargs = {
+                'project': {
+                    'validators': [
+                        UniqueValidator(
+                            queryset=ProjectCharter.objects.all(), 
+                            message = 'This project already has a project charter.'
+                        )
+                    ]
+                }
+            }
