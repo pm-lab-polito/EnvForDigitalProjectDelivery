@@ -1,0 +1,50 @@
+{
+  "2021": {
+    "sales": 326,
+    "cost_of_goods_sold": {
+      "material": 197,
+      "direct_labour": 25,
+      "overhead": 60
+    },
+    "s.g.a": {
+      "selling": 8,
+      "general": 5,
+      "administrative": 2
+    },
+    "roi": 0.047,
+    "roe": 0.07,
+    "cash_provided_from_operations": {
+      "net_income": 68,
+      "items_not_involving_current_cash_flows": 206,
+      "changes_in_operating_assets_and_liabilities": 54
+    },
+    "cash_used_for_investing": {
+      "fixed_assets_additions": -115,
+      "increase_in_investments_other_assets_and_intangible_assets": -33
+    }
+  },
+  "2020": {
+    "sales": 384,
+    "cost_of_goods_sold": {
+      "material": 246,
+      "direct_labour": 28,
+      "overhead": 66
+    },
+    "s.g.a": {
+      "selling": 9,
+      "general": 5,
+      "administrative": 2
+    },
+    "roi": 0.101,
+    "roe": 0.1550,
+    "cash_provided_from_operations": {
+      "net_income": 163,
+      "items_not_involving_current_cash_flows": 198,
+      "changes_in_operating_assets_and_liabilities": 35
+    },
+    "cash_used_for_investing": {
+      "fixed_assets_additions": -144,
+      "increase_in_investments_other_assets_and_intangible_assets": -38
+    }
+  }
+}

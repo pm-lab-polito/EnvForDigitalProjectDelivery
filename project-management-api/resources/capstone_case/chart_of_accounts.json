@@ -1,0 +1,826 @@
+{
+  "accounts": [
+    {
+      "account_name": "Assets",
+      "account_number": "1",
+      "depth": 0,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Cash And Financial Assets",
+      "account_number": "1.1",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Cash and Cash Equivalents",
+      "account_number": "1.1.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Financial Assets (Investments)",
+      "account_number": "1.1.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Restricted Cash and Financial Assets",
+      "account_number": "1.1.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Additional Financial Assets and Investments",
+      "account_number": "1.1.4",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Receivables And Contracts",
+      "account_number": "1.2",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Accounts, Notes And Loans Receivable",
+      "account_number": "1.2.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Contracts",
+      "account_number": "1.2.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Nontrade And Other Receivables",
+      "account_number": "1.2.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Inventory",
+      "account_number": "1.3",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Merchandise",
+      "account_number": "1.3.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Raw Material, Parts And Supplies",
+      "account_number": "1.3.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Work In Process",
+      "account_number": "1.3.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Finished Goods",
+      "account_number": "1.3.4",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Other Inventory",
+      "account_number": "1.3.5",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Accruals And Additional Assets",
+      "account_number": "1.4",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Prepaid Expense",
+      "account_number": "1.4.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Accrued Income",
+      "account_number": "1.4.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Additional Assets",
+      "account_number": "1.4.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Property, Plant And Equipment",
+      "account_number": "1.5",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Land And Land Improvements",
+      "account_number": "1.5.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Buildings, Structures And Improvements",
+      "account_number": "1.5.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Machinery And Equipment",
+      "account_number": "1.5.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Furniture And Fixtures",
+      "account_number": "1.5.4",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Additional Property, Plant And Equipment",
+      "account_number": "1.5.5",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Construction In Progress",
+      "account_number": "1.5.6",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Intangible Assets (Excluding Goodwill)",
+      "account_number": "1.6",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Intellectual Property",
+      "account_number": "1.6.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Computer Software",
+      "account_number": "1.6.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Trade And Distribution Assets",
+      "account_number": "1.6.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Contracts And Rights",
+      "account_number": "1.6.4",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Right To Use Assets (Classified By Type)",
+      "account_number": "1.6.5",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Other Intangible Assets",
+      "account_number": "1.6.6",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Acquisition In Progress",
+      "account_number": "1.6.7",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Goodwill",
+      "account_number": "1.7",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Liabilities",
+      "account_number": "2",
+      "depth": 0,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Payables",
+      "account_number": "2.1",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Trade Payables",
+      "account_number": "2.1.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Dividends Payable",
+      "account_number": "2.1.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Interest Payable",
+      "account_number": "2.1.3",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Other Payables",
+      "account_number": "2.1.4",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Accruals And Other Liabilities",
+      "account_number": "2.2",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Accrued Expenses",
+      "account_number": "2.2.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Deferred Income (Unearned Revenue) ",
+      "account_number": "2.2.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Accrued Taxes (Other Than Payroll)",
+      "account_number": "2.2.3",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Other (Non-Financial) Liabilities",
+      "account_number": "2.2.4",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Financial Labilities",
+      "account_number": "2.3",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Notes Payable",
+      "account_number": "2.3.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Loans Payable",
+      "account_number": "2.3.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Bonds (Debentures)",
+      "account_number": "2.3.3",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Other Debts And Borrowings",
+      "account_number": "2.3.4",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Lease Obligations",
+      "account_number": "2.3.5",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Derivative Financial Liabilities",
+      "account_number": "2.3.6",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Other Liabilities",
+      "account_number": "2.3.7",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Provisions (Contingencies)",
+      "account_number": "2.4",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Customer Related Provisions",
+      "account_number": "2.4.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Ligation And Regulatory Provisions",
+      "account_number": "2.4.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Other Provisions",
+      "account_number": "2.4.3",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Equity",
+      "account_number": "3",
+      "depth": 0,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Owners Equity (Attributable To Owners Of Parent)",
+      "account_number": "3.1",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Equity At par (Issued Capital)",
+      "account_number": "3.1.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Additional Paid-in Capital",
+      "account_number": "3.1.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Retained Earnings",
+      "account_number": "3.2",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Appropriated",
+      "account_number": "3.2.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Unappropriated",
+      "account_number": "3.2.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Deficit ",
+      "account_number": "3.2.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "In Suspense",
+      "account_number": "3.2.4",
+      "depth": 2,
+      "balance": "Zero"
+    },
+    {
+      "account_name": "Accumulated OCI (US GAAP)",
+      "account_number": "3.3",
+      "depth": 1,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Other Reserves (IFRS)",
+      "account_number": "3.4",
+      "depth": 1,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Other Equity Items",
+      "account_number": "3.5",
+      "depth": 1,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "ESOP Related Items",
+      "account_number": "3.5.1",
+      "depth": 2,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Subscribed Stock Receivables",
+      "account_number": "3.5.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Treasury Stock",
+      "account_number": "3.5.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Miscellaneous Equity",
+      "account_number": "3.5.4",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Noncontrolling (Minority) Interest",
+      "account_number": "3.6",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Revenue",
+      "account_number": "4",
+      "depth": 0,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Recognized Point Of Time",
+      "account_number": "4.1",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Goods",
+      "account_number": "4.1.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Services",
+      "account_number": "4.1.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Recognized Over Time",
+      "account_number": "4.2",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Products",
+      "account_number": "4.2.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Services",
+      "account_number": "4.2.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Adjustments",
+      "account_number": "4.3",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Variable Consideration",
+      "account_number": "4.3.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Consideration Paid (Payable) To Customers",
+      "account_number": "4.3.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Other Adjustments",
+      "account_number": "4.3.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Expenses",
+      "account_number": "5",
+      "depth": 0,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Expenses Classified By Nature",
+      "account_number": "5.1",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Material And Merchandise",
+      "account_number": "5.1.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Employee Benefits",
+      "account_number": "5.1.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Services",
+      "account_number": "5.1.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Rent, Depreciation, Amortization And Depletion",
+      "account_number": "5.1.4",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Increase (Decrease) In Inventories Of Finished Goods And Work In Progress",
+      "account_number": "5.1.5",
+      "depth": 2,
+      "balance": "Dr / Cr"
+    },
+    {
+      "account_name": "Other Work Performed By Entity And Capitalized",
+      "account_number": "5.1.6",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Expenses Classified By Function",
+      "account_number": "5.2",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Cost Of Sales",
+      "account_number": "5.2.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Selling, General And Administrative ",
+      "account_number": "5.2.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Accounts Receivable, Credit Loss (Reversal)",
+      "account_number": "5.2.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Other (Non-Operating) Income And Expenses",
+      "account_number": "6",
+      "depth": 0,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Other Revenue And Expenses",
+      "account_number": "6.1",
+      "depth": 1,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Other Revenue",
+      "account_number": "6.1.1",
+      "depth": 2,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Other Expenses",
+      "account_number": "6.1.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Gains And Losses",
+      "account_number": "6.2",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Foreign Currency Transaction Gain (Loss)",
+      "account_number": "6.2.1",
+      "depth": 2,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Gain (Loss) On Investments",
+      "account_number": "6.2.2",
+      "depth": 2,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Gain (Loss) On Derivatives",
+      "account_number": "6.2.3",
+      "depth": 2,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Gain (Loss) On Disposal Of Assets",
+      "account_number": "6.2.4",
+      "depth": 2,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Debt Related Gain (Loss)",
+      "account_number": "6.2.5",
+      "depth": 2,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Impairment Loss",
+      "account_number": "6.2.6",
+      "depth": 2,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Other Gains And (Losses)",
+      "account_number": "6.2.7",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Taxes (Other Than Income And Payroll) And Fees",
+      "account_number": "6.3",
+      "depth": 1,
+      "balance": "Dr or (Cr)"
+    },
+    {
+      "account_name": "Real Estate Taxes And Insurance",
+      "account_number": "6.3.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Highway (Road) Taxes And Tolls",
+      "account_number": "6.3.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Direct Tax And License Fees",
+      "account_number": "6.3.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Excise And Sales Taxes",
+      "account_number": "6.3.4",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Customs Fees And Duties (Not Classified As Sales Or Excise)",
+      "account_number": "6.3.5",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Non-Deductible VAT (GST)",
+      "account_number": "6.3.6",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "General Insurance Expense",
+      "account_number": "6.3.7",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Administrative Fees (Revenue Stamps)",
+      "account_number": "6.3.8",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Fines And Penalties",
+      "account_number": "6.3.9",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Miscellaneous Taxes",
+      "account_number": "6.3.10",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Other Taxes And Fees",
+      "account_number": "6.3.11",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Income Tax Expense (Benefit)",
+      "account_number": "6.4",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Intercompany And Related Party Accounts",
+      "account_number": "7",
+      "depth": 0,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Intercompany And Related Party Assets",
+      "account_number": "7.1",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Intercompany Balances (Eliminated In Consolidation)",
+      "account_number": "7.1.1",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Related Party Balances (Reported Or Disclosed)",
+      "account_number": "7.1.2",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Intercompany Investments",
+      "account_number": "7.1.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Intercompany And Related Party Liabilities",
+      "account_number": "7.2",
+      "depth": 1,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Intercompany Balances (Eliminated In Consolidation)",
+      "account_number": "7.2.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Related Party Balances (Reported Or Disclosed)",
+      "account_number": "7.2.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Intercompany And Related Party Income And Expense",
+      "account_number": "7.3",
+      "depth": 1,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Intercompany And Related Party Income",
+      "account_number": "7.3.1",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Intercompany And Related Party Expenses",
+      "account_number": "7.3.2",
+      "depth": 2,
+      "balance": "(Cr)"
+    },
+    {
+      "account_name": "Income (Loss) From Equity Method Investments",
+      "account_number": "7.3.3",
+      "depth": 2,
+      "balance": "Dr"
+    },
+    {
+      "account_name": "Acquisitions In Progress (Business Combination)",
+      "account_number": "8",
+      "depth": 0,
+      "balance": "Dr or (Cr)"
+    }
+  ]
+}

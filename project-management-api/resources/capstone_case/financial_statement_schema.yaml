@@ -1,0 +1,60 @@
+financial_statement:
+  jsonschema:
+    type: object
+    additionalProperties: # https://stackoverflow.com/questions/27357861/dictionary-like-json-schema
+      type: object
+      properties:
+        sales: { type: integer }
+        cost_of_goods_sold:
+          type: object
+          properties:
+            material: { type: integer }
+            direct_labour: { type: integer }
+            overhead: { type: integer }
+            additionalProperties: false
+          required:
+            - material
+            - direct_labour
+            - overhead
+        s.g.a:
+          type: object
+          properties:
+            selling: { type: integer }
+            general: { type: integer }
+            administrative: { type: integer }
+            additionalProperties: false
+          required:
+            - selling
+            - general
+            - administrative
+        roi: { type: number }
+        roe: { type: number }
+        cash_provided_from_operations:
+          type: object
+          properties:
+            net_income: { type: integer }
+            items_not_involving_current_cash_flows: { type: integer }
+            changes_in_operating_assets_and_liabilities: { type: integer }
+            additionalProperties: false
+          required:
+            - net_income
+            - items_not_involving_current_cash_flows
+            - changes_in_operating_assets_and_liabilities
+        cash_used_for_investing:
+          type: object
+          properties:
+            fixed_assets_additions: { type: integer }
+            increase_in_investments_other_assets_and_intangible_assets: { type: integer }
+            additionalProperties: false
+          required:
+            - fixed_assets_additions
+            - increase_in_investments_other_assets_and_intangible_assets
+      required:
+        - sales
+        - cost_of_goods_sold
+        - s.g.a
+        - roi
+        - roe
+        - cash_provided_from_operations
+        - cash_used_for_investing
+      additionalProperties: false

@@ -1,0 +1,30 @@
+chart_of_accounts:
+  jsonschema:
+    type: object
+    properties:
+      accounts:
+        type: array
+        items:
+          type: object
+          properties:
+            account_name:
+              type: string
+            account_number:
+              type: string
+            depth:
+              type: integer
+            balance:
+              type: string
+              enum:
+                - Dr
+                - (Cr)
+                - Zero
+                - Dr or (Cr)
+                - Dr / Cr
+          required:
+            - account_name
+            - account_number
+            - depth
+            - balance
+    required:
+      - accounts
