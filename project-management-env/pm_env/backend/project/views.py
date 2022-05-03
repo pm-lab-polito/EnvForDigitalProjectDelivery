@@ -1,8 +1,23 @@
 from rest_framework import generics, status
 from .serializers import ProjectSerializer
 from rest_framework.response import Response
-from custom_permissions.permissions import IsProjectManagementOffice
+from custom_permissions.permissions import (IsProjectManagementOffice, hasChangeProjectPermission, 
+    hasDeleteProjectPermission, hasViewProjectPermission, IsAuthorOfProject, IsOwnerOfUserAccount,)
 from .models import Project
+from accounts.models import User
+from guardian.shortcuts import assign_perm, get_user_perms, remove_perm
+
+
+def assign_full_project_perm_to_author(project, author):
+    user = User.objects.get(id=author.id)
+    assign_perm('project.change_project', user, project)
+    assign_perm('project.delete_project', user, project)
+    assign_perm('project.view_project', user, project)
+    assign_perm('project_charter.add_project_charter', user, project)
+    assign_perm('project_charter.change_project_charter', user, project)
+    assign_perm('project_charter.delete_project_charter', user, project)
+    assign_perm('project_charter.view_project_charter', user, project)
+    
 
 #   Create a new project
 class ProjectAPI(generics.GenericAPIView):
@@ -15,6 +30,8 @@ class ProjectAPI(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
+        assign_full_project_perm_to_author(project=project, author=project.author)
+
         return Response(
             {
                 'detail': 'Project created successfully.',
@@ -28,7 +45,7 @@ class ProjectAPI(generics.GenericAPIView):
 class EditProjectAPI(generics.UpdateAPIView):
     name = 'edit-project-name'
     serializer_class = ProjectSerializer
-    permission_classes = [IsProjectManagementOffice,]
+    permission_classes = [hasChangeProjectPermission,]
     queryset = Project.objects.all()
     http_method_names = ['patch']
 
@@ -49,14 +66,14 @@ class EditProjectAPI(generics.UpdateAPIView):
 class DeleteProjectAPI(generics.DestroyAPIView):
     name = 'delete-project'
     serializer_class = ProjectSerializer
-    permission_classes = [IsProjectManagementOffice,]
+    permission_classes = [hasDeleteProjectPermission,]
     queryset = Project.objects.all()
 
 
 #   Get a project 
 class ProjectDetailsAPI(generics.RetrieveAPIView): 
     name = 'project-details'
-    permission_classes = () # IsProjectManagementOffice)
+    permission_classes = [hasViewProjectPermission,]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     
@@ -67,3 +84,161 @@ class ProjectListAPI(generics.ListAPIView):
     permission_classes = (IsProjectManagementOffice, )
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+
+
+#### Permissions #####
+def validated_project_permissions(permissions):
+    if permissions and len(permissions) > 0:
+        if ('change_project' in permissions or 
+            'delete_project' in permissions or 
+            'view_project' in permissions):
+            return True
+    return False
+
+        
+class AddProjectPermissionsOfUserAPI(generics.GenericAPIView):
+    name = 'add-project-permissions'
+    permission_classes = [IsAuthorOfProject,]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            user_id = request.data.get('user_id')
+            user = User.objects.get(id=user_id)
+            project_id = request.data.get('project_id')
+            project = Project.objects.get(id=project_id)
+            permissions = request.data.get('permissions')
+            # check if a request user is a project author 
+            self.check_object_permissions(request, project)
+            if validated_project_permissions(permissions):
+                # if 'add_project' in permissions:
+                #         # assign_perm('project.add_project', user, project)
+                #         content_type = ContentType.objects.get_for_model(Project)
+                #         permission = Permission.objects.get(
+                #                 codename="add_project", content_type=content_type
+                #                     )
+                #         user.user_permissions.add(permission)
+
+                if 'change_project' in permissions:
+                        assign_perm('project.change_project', user, project)
+
+                if 'delete_project' in permissions:
+                        assign_perm('project.delete_project', user, project)
+
+                if 'view_project' in permissions:
+                        assign_perm('project.view_project', user, project)
+                
+                return Response(status=status.HTTP_201_CREATED)
+
+            
+            return Response({
+                    'detail': 'Permissions is not defined correctly.'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except User.DoesNotExist:
+            return Response(
+                {
+                    'detail': 'User does not exist'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Project.DoesNotExist:
+            return Response(
+                {
+                    'detail': 'Project does not exist'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class DeleteProjectPermissionsOfUserAPI(generics.GenericAPIView):
+    name = 'delete-project-permissions'
+    permission_classes = [IsAuthorOfProject,]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            user_id = request.data.get('user_id')
+            user = User.objects.get(id=user_id)
+            project_id = request.data.get('project_id')
+            project = Project.objects.get(id=project_id)
+            permissions = request.data.get('permissions')
+            # check if a request user is a project author 
+            self.check_object_permissions(request, project)
+            if validated_project_permissions(permissions):
+                # if 'add_project' in permissions:
+                #         # remove_perm('project.add_project', user, project)
+                #         user.user_permissions.remove('project.add_project')
+
+                if 'change_project' in permissions:
+                        remove_perm('project.change_project', user, project)
+
+                if 'delete_project' in permissions:
+                        remove_perm('project.delete_project', user, project)
+
+                if 'view_project' in permissions:
+                        remove_perm('project.view_project', user, project)
+                
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            
+            return Response({
+                    'detail': 'Permissions is not defined correctly.'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except User.DoesNotExist:
+            return Response(
+                {
+                    'detail': 'User does not exist'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Project.DoesNotExist:
+            return Response(
+                {
+                    'detail': 'Project does not exist'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+            
+class GetProjectPermissionsOfUserAPI(generics.GenericAPIView):
+    name = 'get-project-permissions'
+    permission_classes = [IsAuthorOfProject | IsOwnerOfUserAccount,]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            user_id = self.kwargs.get('user_id')
+            user = User.objects.get(id=user_id)
+            project_id = self.kwargs.get('project_id')
+            project = Project.objects.get(id=project_id)
+            
+            permissions = get_user_perms(user, project)
+
+            perm_obj = {
+                'user': user,
+                'project': project
+            }
+            # check if a request user is a project author or is owner of user account
+            self.check_object_permissions(request, perm_obj)
+
+            return Response({
+                    'permissions': permissions,
+                }, 
+                status=status.HTTP_200_OK
+            )
+
+        except User.DoesNotExist:
+            return Response(
+                {
+                    'detail': 'User does not exist'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Project.DoesNotExist:
+            return Response(
+                {
+                    'detail': 'Project does not exist'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )

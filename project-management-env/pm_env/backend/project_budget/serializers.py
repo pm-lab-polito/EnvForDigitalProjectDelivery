@@ -14,6 +14,7 @@ class ProjectBudgetSerializer(serializers.ModelSerializer):
             proj_budget = ProjectBudget.objects.get(project_charter=instance.project_charter, year=instance.year)
             proj_budget.budget = instance.budget
             proj_budget.save()
+            instance = proj_budget
 
         except ProjectBudget.DoesNotExist:
             instance.save()

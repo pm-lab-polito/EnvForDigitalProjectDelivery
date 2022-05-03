@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'knox', 
     'django_extensions',
+    'guardian',
 
     #   project apps
     'accounts.apps.AccountsConfig',
@@ -68,6 +69,11 @@ REST_FRAMEWORK = {
         'knox.auth.TokenAuthentication',
     ]
 }
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 AUTH_USER_MODEL = 'accounts.User'
 

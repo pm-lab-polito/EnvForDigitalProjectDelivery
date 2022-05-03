@@ -1,7 +1,8 @@
 from django.urls import path, include
 from .views import (ProjectCharterAPI, DeleteProjectCharterAPI, EditProjectCharterAPI, 
                         BusinessCaseSWOTAPI, DeleteBusinessCaseSWOTAPI, SWOTDetailsAPI, 
-                        SWOTListOfProjectCharterAPI, ProjectCharterDetailsAPI)
+                        SWOTListOfProjectCharterAPI, ProjectCharterDetailsAPI, 
+                        AddProjectCharterPermissionsOfUserAPI, DeleteProjectCharterPermissionsOfUserAPI)
 
 
 urlpatterns = [
@@ -12,7 +13,11 @@ urlpatterns = [
     path('swot/add/', BusinessCaseSWOTAPI.as_view(), name='add-business-case-swot'),
     path('swot/delete/<int:pk>/', DeleteBusinessCaseSWOTAPI.as_view(), name='delete-swot'),
     path('swot/<int:pk>/', SWOTDetailsAPI.as_view(), name='swot-details'),
-    path('swot/list/<int:pk>/', SWOTListOfProjectCharterAPI.as_view(), name='swot-list-of-project-charter'),
+    path('swot/list/<int:project_charter_pk>/', SWOTListOfProjectCharterAPI.as_view(), name='swot-list-of-project-charter'),
+    path('permissions/add/', AddProjectCharterPermissionsOfUserAPI.as_view(), 
+        name='add-project-charter-permissions'),
+    path('permissions/delete/', DeleteProjectCharterPermissionsOfUserAPI.as_view(), 
+        name='delete-project-charter-permissions'),
 
     path('budget/', include('project_budget.urls'), name='project-budget'),
 ]

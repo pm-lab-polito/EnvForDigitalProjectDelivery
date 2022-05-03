@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                     ('PSC', 'PSC'), ('PP', 'PP'), ('AS', 'AS'), ('U', 'U')],  
         default='U'  
     )
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 

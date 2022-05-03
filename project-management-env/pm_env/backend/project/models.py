@@ -12,3 +12,9 @@ class Project(models.Model):
 
     class Meta:
         ordering = ('project_name',)
+        permissions = (
+            ('add_project_charter', 'Can add project charter / to project charter'),
+            ('change_project_charter', 'Can change project charter'),
+            ('delete_project_charter', 'Can delete project charter'),
+            ('view_project_charter', 'Can view project charter')
+        )

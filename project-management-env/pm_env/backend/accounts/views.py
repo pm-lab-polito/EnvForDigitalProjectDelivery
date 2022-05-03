@@ -81,18 +81,18 @@ class ActivateUserAPI(generics.GenericAPIView):
     def patch(self, request, pk):
         try:
             user = User.objects.get(pk=pk)
-            if user.user_role is not 'U':
-                user.is_active = True
-                user.save()
-                return Response(
-                        {'detail': 'User activated successfully'},
-                        status=status.HTTP_204_NO_CONTENT
-                    )
-            else: 
-                return Response(
-                        {'detail': 'User role must be defined before activation.'},
-                        status=status.HTTP_412_PRECONDITION_FAILED
-                    )
+            # if user.user_role is not 'U':
+            user.is_active = True
+            user.save()
+            return Response(
+                    {'detail': 'User activated successfully'},
+                    status=status.HTTP_204_NO_CONTENT
+                )
+            # else: 
+            #     return Response(
+            #             {'detail': 'User role must be defined before activation.'},
+            #             status=status.HTTP_412_PRECONDITION_FAILED
+            #         )
         except User.DoesNotExist:
             return Response(
                     {'detail': 'User does not exist'},
