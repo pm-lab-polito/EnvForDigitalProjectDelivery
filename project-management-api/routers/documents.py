@@ -1,3 +1,7 @@
+"""
+Module for the methods regarding the documents
+"""
+
 import copy
 import operator
 from functools import reduce
@@ -23,6 +27,16 @@ async def add_document_schema_to_project(request_body: Dict    = Depends(get_req
                                          user        : User    = Depends(get_current_active_user),
                                          db_project  : Project = Depends(get_project),
                                          session     : Session = Depends(get_session)):
+    """
+    Add a document schema to a project
+    Requires the authenticated user to have the permission to create a document
+
+    :param request_body: schema to add
+    :param user: current user from dependencies
+    :param db_project: project of path from dependencies
+    :param session: session from dependencies
+    :return: the document added
+    """
 
     document_name = list(request_body.keys())[0]
     document_body = request_body[document_name]
@@ -72,6 +86,17 @@ async def put_document_to_project(document_body: Dict     = Depends(get_request_
                                   db_project   : Project  = Depends(get_project),
                                   db_doc       : Document = Depends(get_document),
                                   session      : Session  = Depends(get_session)):
+    """
+    Add or update content of document
+    Requires the authenticated user to have the permission to edit the document
+
+    :param document_body: document content to add or update
+    :param user: current user from dependencies
+    :param db_project: project of path from dependencies
+    :param db_doc: document of path from dependencies
+    :param session: session from dependencies
+    :return: the document
+    """
 
     last = db_doc.last
     time = datetime.utcnow()
@@ -110,6 +135,17 @@ async def patch_document_of_project(document_body: Dict     = Depends(get_reques
                                     db_project   : Project  = Depends(get_project),
                                     db_doc       : Document = Depends(get_document),
                                     session      : Session  = Depends(get_session)):
+    """
+    Patch content of document
+    Requires the authenticated user to have the permission to edit the document
+
+    :param document_body: document content to patch
+    :param user: current user from dependencies
+    :param db_project: project of path from dependencies
+    :param db_doc: document of path from dependencies
+    :param session: session from dependencies
+    :return: the document
+    """
 
     new_last = copy.deepcopy(db_doc.last)
     new_last.update(document_body)
@@ -131,6 +167,15 @@ async def patch_document_of_project(document_body: Dict     = Depends(get_reques
 def get_document_of_project(field : str | None = None,
                             path  : str | None = None,
                             db_doc: Document   = Depends(get_document)):
+    """
+    Get specified content in path of field of document
+    Requires the authenticated user to have the permission to view the document
+
+    :param field: field of document
+    :param path: path in field
+    :param db_doc: document of path from dependencies
+    :return: content in path of field of document
+    """
 
     if field is None:
         return db_doc
@@ -155,6 +200,18 @@ async def post_path_document_of_project(path         : str | None = None,
                                         document_body: Dict       = Depends(get_request_body),
                                         db_project   : Project    = Depends(get_project),
                                         db_doc       : Document   = Depends(get_document)):
+    """
+    Post content in path of document content
+    Requires the authenticated user to have the permission to edit the document
+
+    :param path: path in document content
+    :param session: session from dependencies
+    :param user: current user from dependencies
+    :param document_body: document content to post
+    :param db_project: project of path from dependencies
+    :param db_doc: document of path from dependencies
+    :return: the document
+    """
 
     last_el = path.split('/')[-1]
 
@@ -200,6 +257,14 @@ async def post_path_document_of_project(path         : str | None = None,
                              Depends(require_document_permission(Permissions.delete))])
 def delete_document_of_project(db_doc : Document = Depends(get_document),
                                session: Session  = Depends(get_session)):
+    """
+    Delete document of project
+    Requires the authenticated user to have the permission to delete the document
+
+    :param db_doc:
+    :param session:
+    :return: 200 OK if document is deleted, else the corresponding error
+    """
     session.delete(db_doc)
     session.commit()
 
@@ -211,6 +276,16 @@ def add_document_permissions(doc_permissions: DocumentPermissionsInput,
                              db_project : Project  = Depends(get_project),
                              db_doc     : Document = Depends(get_document),
                              session    : Session  = Depends(get_session)):
+    """
+    Add user permissions to document
+    Requires the authenticated user to have the permission to edit the document permissions
+
+    :param doc_permissions: permissions to add
+    :param db_project: project of path from dependencies
+    :param db_doc: document of path from dependencies
+    :param session: session from dependencies
+    :return: current user permissions of the document
+    """
 
     if crud.get_user(session, doc_permissions.user_name) is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -242,6 +317,16 @@ def delete_document_permissions(doc_permissions: DocumentPermissionsInput,
                                 db_project : Project  = Depends(get_project),
                                 db_doc     : Document = Depends(get_document),
                                 session    : Session  = Depends(get_session)):
+    """
+    Deletes user permissions of document
+    Requires the authenticated user to have the permission to edit the document permissions
+
+    :param doc_permissions: permissions to delete
+    :param db_project: project of path from dependencies
+    :param db_doc: document of path from dependencies
+    :param session: session from dependencies
+    :return: current user permissions of the document
+    """
 
     if crud.get_user(session, doc_permissions.user_name) is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -266,11 +351,21 @@ def delete_document_permissions(doc_permissions: DocumentPermissionsInput,
 
 @router.get("/{document_name}/permissions/{user_name}",
             response_model=DocumentPermissionsInput,
-            dependencies=[Depends(require_document_permission(Permissions.view))])
+            dependencies=[Depends(require_document_permission(Permissions.edit_permissions))])
 def get_document_permissions_for_user(user_name : str,
                                       db_project: Project  = Depends(get_project),
                                       db_doc    : Document = Depends(get_document),
                                       session   : Session  = Depends(get_session)):
+    """
+    Gets user permissions of document
+    Requires the authenticated user to have the permission to edit the document permissions
+
+    :param user_name: user name of permissions to get
+    :param db_project: project of path from dependencies
+    :param db_doc: document of path from dependencies
+    :param session: session from dependencies
+    :return: current user permissions of the document
+    """
     perm_list = list(map(lambda item: item.permission,
                          crud.get_document_permissions(session,
                                                        user_name,
