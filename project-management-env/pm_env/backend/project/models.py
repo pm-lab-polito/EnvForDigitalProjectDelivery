@@ -6,6 +6,7 @@ class Project(models.Model):
     project_name = models.CharField(max_length=255, blank=False)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
+    stakeholders = models.ManyToManyField(User, blank=True, related_name="stakeholders")
 
     def __str__(self):
         return self.project_name

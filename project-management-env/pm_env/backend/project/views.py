@@ -1,5 +1,7 @@
+from django.http import Http404
 from rest_framework import generics, status
-from .serializers import ProjectSerializer
+from .serializers import (ProjectCreateSerializer, ProjectViewSerializer, AddStakeholderSerializer, 
+    RemoveStakeholderSerializer, GetStakeholdersSerializer, StakeholderProjectsSerializer)
 from rest_framework.response import Response
 from custom_permissions.permissions import (IsProjectManagementOffice, hasChangeProjectPermission, 
     hasDeleteProjectPermission, hasViewProjectPermission, IsAuthorOfProject, IsOwnerOfUserAccount,)
@@ -22,10 +24,9 @@ def assign_full_project_perm_to_author(project, author):
 #   Create a new project
 class ProjectAPI(generics.GenericAPIView):
     name = 'create-project'
-    serializer_class = ProjectSerializer
+    serializer_class = ProjectCreateSerializer
     permission_classes = [IsProjectManagementOffice,]
 
-    # Create a new project
     def post(self, request, format='json'):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -35,7 +36,7 @@ class ProjectAPI(generics.GenericAPIView):
         return Response(
             {
                 'detail': 'Project created successfully.',
-                'project': ProjectSerializer(project, context=self.get_serializer_context()).data,
+                'project': ProjectViewSerializer(project, context=self.get_serializer_context()).data,
             },
             status=status.HTTP_201_CREATED
         )
@@ -44,7 +45,7 @@ class ProjectAPI(generics.GenericAPIView):
 #   Edit a project name
 class EditProjectAPI(generics.UpdateAPIView):
     name = 'edit-project-name'
-    serializer_class = ProjectSerializer
+    serializer_class = ProjectCreateSerializer
     permission_classes = [hasChangeProjectPermission,]
     queryset = Project.objects.all()
     http_method_names = ['patch']
@@ -65,7 +66,7 @@ class EditProjectAPI(generics.UpdateAPIView):
 #   Delete an existing project
 class DeleteProjectAPI(generics.DestroyAPIView):
     name = 'delete-project'
-    serializer_class = ProjectSerializer
+    serializer_class = ProjectCreateSerializer
     permission_classes = [hasDeleteProjectPermission,]
     queryset = Project.objects.all()
 
@@ -75,15 +76,81 @@ class ProjectDetailsAPI(generics.RetrieveAPIView):
     name = 'project-details'
     permission_classes = [hasViewProjectPermission,]
     queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    
+    serializer_class = ProjectViewSerializer
 
-#   Get a project list 
-class ProjectListAPI(generics.ListAPIView): 
-    name = 'project-list'
-    permission_classes = (IsProjectManagementOffice, )
+
+#   Get projects of stakeholder 
+class GetProjectsOfStakeholderAPI(generics.ListAPIView): 
+    name = 'get-projects-of-stakeholder'
+    permission_classes = (hasViewProjectPermission, )
     queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
+    serializer_class = StakeholderProjectsSerializer
+    model = serializer_class.Meta.model
+    lookup_url_kwarg = 'user_id'
+
+    def get_queryset(self):
+        try:
+            user_id = self.kwargs['user_id']
+            stakeholder = User.objects.get(id=user_id)
+            queryset = self.model.objects.filter(stakeholders=stakeholder)
+
+            return queryset
+
+        except User.DoesNotExist:
+            raise Http404
+
+
+
+# Add stakeholders to a project
+class AddStakeholdersToProjectAPI(generics.UpdateAPIView):
+    name = 'add-project-stakeholders'
+    serializer_class = AddStakeholderSerializer
+    permission_classes = [hasChangeProjectPermission,]
+    queryset = Project.objects.all()
+    http_method_names = ['patch']
+    lookup_url_kwarg = 'project_id'
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {
+                "detail": "Stakeholders added successfully"
+            },  
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+
+# Remove stakeholders from a project
+class RemoveStakeholdersFromProjectAPI(generics.UpdateAPIView):
+    name = 'remove-project-stakeholders'
+    serializer_class = RemoveStakeholderSerializer
+    permission_classes = [hasDeleteProjectPermission,]
+    queryset = Project.objects.all()
+    http_method_names = ['patch']
+    lookup_url_kwarg = 'project_id'
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {
+                "detail": "Stakeholders removed successfully"
+            },  
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+
+class GetStakeholdersOfProjectAPI(generics.RetrieveAPIView):
+    name = 'get-stakeholders-of-project'
+    serializer_class = GetStakeholdersSerializer
+    permission_classes = [hasViewProjectPermission,]
+    queryset = Project.objects.all()
+    lookup_url_kwarg = 'project_id'
 
 
 #### Permissions #####
@@ -109,32 +176,39 @@ class AddProjectPermissionsOfUserAPI(generics.GenericAPIView):
             permissions = request.data.get('permissions')
             # check if a request user is a project author 
             self.check_object_permissions(request, project)
-            if validated_project_permissions(permissions):
-                # if 'add_project' in permissions:
-                #         # assign_perm('project.add_project', user, project)
-                #         content_type = ContentType.objects.get_for_model(Project)
-                #         permission = Permission.objects.get(
-                #                 codename="add_project", content_type=content_type
-                #                     )
-                #         user.user_permissions.add(permission)
+            # user is stakeholder of the project
+            if user in project.stakeholders.all():
+                if validated_project_permissions(permissions):
+                    # if 'add_project' in permissions:
+                    #         # assign_perm('project.add_project', user, project)
+                    #         content_type = ContentType.objects.get_for_model(Project)
+                    #         permission = Permission.objects.get(
+                    #                 codename="add_project", content_type=content_type
+                    #                     )
+                    #         user.user_permissions.add(permission)
 
-                if 'change_project' in permissions:
-                        assign_perm('project.change_project', user, project)
+                    if 'change_project' in permissions:
+                            assign_perm('project.change_project', user, project)
 
-                if 'delete_project' in permissions:
-                        assign_perm('project.delete_project', user, project)
+                    if 'delete_project' in permissions:
+                            assign_perm('project.delete_project', user, project)
 
-                if 'view_project' in permissions:
-                        assign_perm('project.view_project', user, project)
+                    if 'view_project' in permissions:
+                            assign_perm('project.view_project', user, project)
+                    
+                    return Response(status=status.HTTP_201_CREATED)
+
                 
-                return Response(status=status.HTTP_201_CREATED)
-
-            
+                return Response({
+                        'detail': 'Permissions is not defined correctly.'
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             return Response({
-                    'detail': 'Permissions is not defined correctly.'
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+                        'detail': 'User must be a stakeholder of the project to assign permissions.'
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         except User.DoesNotExist:
             return Response(
                 {
@@ -242,3 +316,4 @@ class GetProjectPermissionsOfUserAPI(generics.GenericAPIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
+
