@@ -1,3 +1,7 @@
+"""
+Module that contains the database models and return types
+"""
+
 import enum
 from collections import defaultdict
 from datetime import datetime

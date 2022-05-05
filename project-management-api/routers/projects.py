@@ -1,3 +1,7 @@
+"""
+Module for the methods regarding projects
+"""
+
 from fastapi import APIRouter
 
 import routers.documents
@@ -19,6 +23,13 @@ router.include_router(routers.documents.router, prefix="/{project_name}")
             dependencies=[])
 def get_projects(session: Session = Depends(get_session),
                  user: User = Depends(get_current_active_user)):
+    """
+    Returns a list of all projects that the user has access to
+
+    :param session: session from dependencies
+    :param user: current user from dependencies
+    :return: list of project names
+    """
 
     return [project.project_name for project in crud.get_projects(session)
             if has_project_permission(session, user, project, Permissions.view)]
@@ -43,6 +54,15 @@ def get_projects(session: Session = Depends(get_session),
 async def create_project(user        : User    = Depends(get_current_active_user),
                          project_body: Dict    = Depends(get_request_body),
                          session     : Session = Depends(get_session)):
+    """
+    Creates a new project with the data in the body
+    Requires the authenticated user to have the permission to create projects
+
+    :param user: current user from dependencies
+    :param project_body: project data from body
+    :param session: session from dependencies
+    :return: created project
+    """
 
     project_name = project_body['project_name']
 
@@ -124,7 +144,15 @@ async def create_project(user        : User    = Depends(get_current_active_user
 def get_project_by_name(session   : Session = Depends(get_session),
                         user      : User    = Depends(get_current_active_user),
                         db_project: Project = Depends(get_project)):
+    """
+    Get project by name
+    Requires the authenticated user to have the permission to view the project
 
+    :param session: session from dependencies
+    :param user: current user from dependencies
+    :param db_project: project of path from dependencies
+    :return: project
+    """
     ret_proj = ProjectReturn(project_name=db_project.project_name, owner_name=db_project.owner_name)
     ret_proj.documents = [document for document in db_project.documents
                           if has_document_permission(session,
@@ -141,7 +169,14 @@ def get_project_by_name(session   : Session = Depends(get_session),
                              Depends(require_project_permission(Permissions.delete))])
 def delete_project_by_name(session   : Session = Depends(get_session),
                            db_project: Project = Depends(get_project)):
+    """
+    Delete project by name
+    Requires the authenticated user to have the permission to delete the project
 
+    :param session: session from dependencies
+    :param db_project: project of path from dependencies
+    :return: 200 OK if project was deleted, else the corresponding error
+    """
     session.delete(db_project)
     session.commit()
 
@@ -152,7 +187,16 @@ def add_project_permissions(
         proj_permissions: ProjectPermissionsInput,
         session: Session = Depends(get_session),
         db_project: Project = Depends(get_project)):
+    """
+    Add user permissions to project
+    Requires the authenticated user to have the permission to edit permissions
 
+    :param proj_permissions: permissions to add
+    :param session: session from dependencies
+    :param db_project: project of path from dependencies
+    :return: current project permissions of user
+    """
+    
     for perm in proj_permissions.permissions:
         if crud.get_project_permission(session     =session,
                                        user_name   =proj_permissions.user_name,
@@ -176,6 +220,15 @@ def delete_project_permissions(
         proj_permissions: ProjectPermissionsInput,
         session: Session = Depends(get_session),
         db_project: Project = Depends(get_project)):
+    """
+    Delete user permissions from project
+    Requires the authenticated user to have the permission to edit permissions
+
+    :param proj_permissions: permissions to delete
+    :param session: session from dependencies
+    :param db_project: project of path from dependencies
+    :return: current project permissions of user
+    """
 
     for perm in proj_permissions.permissions:
         p = crud.get_project_permission(session     =session,
@@ -199,6 +252,15 @@ def get_project_permissions(
         user_name: str,
         session: Session = Depends(get_session),
         db_project: Project = Depends(get_project)):
+    """
+    Get permissions of specified user in project
+    Requires the authenticated user to have the permission to edit permissions
+
+    :param user_name: user to get permissions for
+    :param session: session from dependencies
+    :param db_project: project of path from dependencies
+    :return: permissions of user in project
+    """
 
     perm_list = list(map(lambda item: item.permission,
                          crud.get_project_permissions(session,

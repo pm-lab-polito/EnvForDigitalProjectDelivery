@@ -1,5 +1,8 @@
-from typing import List, Dict
+"""
+Module for defining schemas for Swagger request body
+"""
 
+from typing import List, Dict
 from pydantic import BaseModel, Extra
 
 

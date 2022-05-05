@@ -1,3 +1,7 @@
+"""
+Module for authentication and authorization
+"""
+
 import enum
 
 from sqlmodel import Session
@@ -7,6 +11,9 @@ from datatypes.models import Document, User, ProjPermissions, DocPermissions, Pr
 
 
 class Permissions(str, enum.Enum):
+    """
+    Enum for permissions
+    """
     create = "create"
     view = "view"
     edit = "edit"
@@ -15,6 +22,9 @@ class Permissions(str, enum.Enum):
 
 
 class PermissionUtils:
+    """
+    Helper class that provides methods for checking permissions
+    """
     def __init__(self, session: Session, user_name: str, project_name: str = None, document_name: str = None):
         self.session = session
         self.user_name = user_name
@@ -24,28 +34,28 @@ class PermissionUtils:
     def has_sys_perm(self, permission: SysPermissions):
         return (permission is not None
                 and crud.get_system_permission(
-                    session=self.session,
-                    user_name=self.user_name,
+                    session   =self.session,
+                    user_name =self.user_name,
                     permission=permission) is not None)
 
     def has_proj_perm(self, permission: ProjPermissions):
         return (permission is not None
                 and self.project_name is not None
                 and crud.get_project_permission(
-                    session=self.session,
-                    user_name=self.user_name,
+                    session     =self.session,
+                    user_name   =self.user_name,
                     project_name=self.project_name,
-                    permission=permission) is not None)
+                    permission  =permission) is not None)
 
     def has_doc_perm(self, permission: DocPermissions):
         return (permission is not None
                 and self.document_name is not None
                 and crud.get_document_permission(
-                    session=self.session,
-                    user_name=self.user_name,
-                    project_name=self.project_name,
+                    session      =self.session,
+                    user_name    =self.user_name,
+                    project_name =self.project_name,
                     document_name=self.document_name,
-                    permission=permission) is not None)
+                    permission   =permission) is not None)
 
 
 document_map = {
@@ -58,6 +68,16 @@ document_map = {
 
 
 def has_document_permission(session: Session, user: User, project: Project, document: Document, permission: Permissions):
+    """
+    Checks if a user has a permission on a document
+
+    :param session: session to use
+    :param user: user to check
+    :param project: project of document
+    :param document: document to check
+    :param permission: permission to check
+    :return: True if user has permission, False otherwise
+    """
     if project is None:
         return False
     if user.user_name == project.owner_name:
@@ -90,6 +110,15 @@ project_map = {
 
 
 def has_project_permission(session: Session, user: User, project: Project, permission: Permissions):
+    """
+    Checks if a user has a permission on a project
+
+    :param session: session to use
+    :param user: user to check
+    :param project: project to check
+    :param permission: permission to check
+    :return: True if user has permission, False otherwise
+    """
     if project is None:
         perm = PermissionUtils(session, user.user_name)
     else:
@@ -114,6 +143,14 @@ system_map = {
 }
 
 def has_system_user_permission(session: Session, user: User, permission: Permissions):
+    """
+    Checks if a user has system permission
+
+    :param session: session to use
+    :param user: user to check
+    :param permission: permission to check
+    :return: True if user has permission, False otherwise
+    """
     perm = PermissionUtils(session, user.user_name)
     if permission not in system_map.keys():
         return False

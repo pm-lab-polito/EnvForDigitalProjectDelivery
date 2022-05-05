@@ -1,5 +1,7 @@
-# Dependency
-import enum
+"""
+Module that contains the methods used by FastApi dependency injection.
+"""
+
 import json.decoder
 from datetime import timedelta, datetime
 from typing import Dict
@@ -16,7 +18,7 @@ from starlette.requests import Request
 from app_config import SECRET_KEY
 from auth import Permissions, has_document_permission, has_project_permission, has_system_user_permission
 from database import crud
-from datatypes.models import User, DocPermissions, Document, DocumentRole, ProjPermissions, Project
+from datatypes.models import User, Document, DocumentRole, Project
 from security.schemas import TokenData
 from security.utils import ALGORITHM
 
@@ -29,15 +31,31 @@ engine = create_engine(sqlite_url, echo=True, connect_args=connect_args)
 
 
 def get_session():
+    """
+    Get a session for the database
+
+    :return: session
+    """
     with Session(engine) as session:
         yield session
 
 
 def create_db_and_tables():
+    """
+    Creates the database and tables
+
+    """
     SQLModel.metadata.create_all(engine)
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    """
+    Creates an access token
+
+    :param data: data to include in the token
+    :param expires_delta: expiration time of token
+    :return: token
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -49,7 +67,14 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 async def get_current_user(token  : str     = Depends(oauth2_scheme),
-                           session: Session = Depends(get_session)):\
+                           session: Session = Depends(get_session)):
+    """
+    Gets the current user from the token
+
+    :param token: token
+    :param session: database session from dependencies
+    :return: current user
+    """
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -71,12 +96,26 @@ async def get_current_user(token  : str     = Depends(oauth2_scheme),
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
+    """
+    Gets the current user from dependencies
+
+    :param current_user: current user from dependencies
+    :return: current user
+    """
     return current_user
 
 
 def get_project(
         project_name: str | None = None,
         session: Session = Depends(get_session)):
+    """
+    Gets the project named project_name from the database
+    If None is passed returns, returns None
+
+    :param project_name: project name, from path params
+    :param session: database session from dependencies
+    :return: project
+    """
     if project_name is None:
         return None
     db_project = crud.get_project_by_name(session, project_name)
@@ -88,6 +127,15 @@ def get_project(
 def get_document(project_name : str | None = None,
                  document_name: str | None = None,
                  session      : Session    = Depends(get_session)):
+    """
+    Gets the document named document_name from the database
+    If None is passed returns, returns None
+
+    :param project_name: project name, from path params
+    :param document_name: document name, from path params
+    :param session: database session from dependencies
+    :return: document
+    """
     if document_name is None:
         return None
     db_doc = crud.get_document_of_project(session, project_name, document_name)
@@ -97,6 +145,9 @@ def get_document(project_name : str | None = None,
 
 
 class CheckDocumentPermission:
+    """
+    Callable class that checks if user has permission on document
+    """
     def __init__(self, permission: Permissions):
         self.permission = permission
 
@@ -114,10 +165,18 @@ class CheckDocumentPermission:
 
 
 def require_document_permission(permission: Permissions):
+    """
+    Checks if user has permission on document, raises 401 if not authorized
+
+    :param permission: permission to check
+    """
     return CheckDocumentPermission(permission)
 
 
 class CheckProjectPermission:
+    """
+    Callable class that checks if user has permission on project
+    """
     def __init__(self, permission: Permissions):
         self.permission = permission
 
@@ -131,25 +190,46 @@ class CheckProjectPermission:
 
 
 def require_project_permission(permission: Permissions):
+    """
+    Checks if user has permission on project, raises 401 if not authorized
+
+    :param permission: permission to check
+    """
     return CheckProjectPermission(permission)
 
 
 class CheckSystemPermission:
+    """
+    Callable class that checks if user has system permission
+    """
+
     def __init__(self, permission: Permissions):
         self.permission = permission
 
     def __call__(self,
                  session: Session = Depends(get_session),
                  user   : User    = Depends(get_current_active_user)):
+
         if not has_system_user_permission(session, user, self.permission):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
 
 def require_system_permission(permission: Permissions):
+    """
+    Checks if user has system permission, raises 401 if not authorized
+
+    :param permission: permission to check
+    """
     return CheckSystemPermission(permission)
 
 
 async def get_request_body(request: Request):
+    """
+    Gets request body from request and returns it as dict, parsing both json and yaml
+
+    :param request: request from body
+    :return: dict with request body
+    """
     if "content-type" not in request.headers:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing Content-Type in header")
     content_type = request.headers['content-type']
@@ -171,6 +251,11 @@ async def get_request_body(request: Request):
 
 
 def check_document_process(db_doc: Document = Depends(get_document)):
+    """
+    Checks if document satisfies constraints of processes, raises 428 if not satisfied
+
+    :param db_doc: document from path, returned by dependencies
+    """
     for process_document in db_doc.documents_processes:
         if process_document.document_role == DocumentRole.output:
             if any(bool(document_process.document.first) is False for document_process in
@@ -182,6 +267,12 @@ def check_document_process(db_doc: Document = Depends(get_document)):
 
 def validate_document(db_doc: Document = Depends(get_document),
                       document_body: Dict = Depends(get_request_body)):
+    """
+    Validates document body against document schema, raises 400 if not valid
+
+    :param db_doc: document from path, returned by dependencies
+    :param document_body: document body from request
+    """
     try:
         validate(document_body, db_doc.jsonschema)
     except ValidationError as e:

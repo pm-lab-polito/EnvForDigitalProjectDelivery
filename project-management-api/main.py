@@ -14,12 +14,22 @@ app.include_router(routers.projects.router)
 
 @app.on_event("startup")
 def on_startup():
+    """
+    Called on startup, creates the database tables if they do not exist
+    """
     create_db_and_tables()
 
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
                                  session  : Session = Depends(get_session)):
+    """
+    Reads data from the login form and returns a token if the user is valid
+
+    :param form_data: data sent by the client
+    :param session: database session from dependencies
+    :return: token
+    """
     user = crud.get_user(session, form_data.username)
     if user is None \
             or \
@@ -38,6 +48,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @app.post("/register", response_model=UserBase)
 def register(user: User, session: Session = Depends(get_session)):
+    """
+    Registers a new user
+
+    :param user: user to add to the database
+    :param session: database session from dependencies
+    :return: user
+    """
     if crud.get_user(session, user.user_name) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User could not be registered")
     user.password = get_password_hash(user.password)
@@ -55,6 +72,12 @@ def register(user: User, session: Session = Depends(get_session)):
 
 @app.get("/me", response_model=UserBase)
 def get_current_user(user: User = Depends(get_current_active_user)):
+    """
+    Returns the current user
+
+    :param user: active user from dependencies
+    :return: user
+    """
     return user
 
 
