@@ -110,7 +110,8 @@ def get_project(
         session: Session = Depends(get_session)):
     """
     Gets the project named project_name from the database
-    If None is passed returns, returns None
+    If project_name is None, returns None
+    If project is not found, raises 404 exception
 
     :param project_name: project name, from path params
     :param session: database session from dependencies
@@ -129,20 +130,41 @@ def get_document(project_name : str | None = None,
                  session      : Session    = Depends(get_session)):
     """
     Gets the document named document_name from the database
-    If None is passed returns, returns None
+    If project_name or document_name are None, returns None
+    If document is not found, raises 404 exception
 
     :param project_name: project name, from path params
     :param document_name: document name, from path params
     :param session: database session from dependencies
     :return: document
     """
-    if document_name is None:
+    if project_name is None or document_name is None:
         return None
     db_doc = crud.get_document_of_project(session, project_name, document_name)
     if db_doc is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
     return db_doc
 
+
+def get_ms_project(project_name: str | None = None,
+                   ms_project_name: str | None = None,
+                   session: Session = Depends(get_session)):
+    """
+    Gets the ms project named ms_project_name from the database
+    If project_name or ms_project_name are None, returns None
+    If ms_project is not found, raises 404 exception
+
+    :param project_name: project name, from path params
+    :param ms_project_name: ms project name, from path params
+    :param session: database session from dependencies
+    :return: ms project
+    """
+    if project_name is None or ms_project_name is None:
+        return None
+    db_ms_project = crud.get_ms_project(session, project_name, ms_project_name)
+    if db_ms_project is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MS Project not found")
+    return db_ms_project
 
 class CheckDocumentPermission:
     """

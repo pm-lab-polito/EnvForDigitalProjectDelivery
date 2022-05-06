@@ -6,7 +6,8 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from datatypes.models import User, Project, Document, ProjectPermission, ProjPermissions, DocPermissions, \
-    DocumentPermission, SysPermissions, SystemPermission
+    DocumentPermission, SysPermissions, SystemPermission, MSProject
+
 
 def get_user(session: Session, user_name: str) -> User:
     """
@@ -141,3 +142,17 @@ def get_document_permissions(session: Session, user_name: str, project_name: str
                         .where(DocumentPermission.project_name  == project_name)
                         .where(DocumentPermission.document_name == document_name)
                         ).all()
+
+def get_ms_project(session: Session, project_name: str, ms_project_name: str):
+    """
+    Get MS Project of project if exists, None otherwise
+
+    :param session: session to use
+    :param project_name: project name
+    :param ms_project_name: MS Project name
+    :return: MS Project if found, None otherwise
+    """
+    return session.exec(select(MSProject)
+                        .where(MSProject.project_name    == project_name)
+                        .where(MSProject.ms_project_name == ms_project_name)
+                        ).first()
