@@ -1,5 +1,7 @@
 from rest_framework import permissions
 from guardian.shortcuts import get_user_perms
+from accounts.models import User
+from project.models import Project
 
 
 class IsProjectManagementOffice(permissions.BasePermission):
@@ -25,6 +27,16 @@ class IsOwnerOrProjectManagementOffice(permissions.BasePermission):
                 IsOwner.has_object_permission(self, request, view, obj))
 
 
+
+class RequestSenderIsRequestedUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        try:
+            user_id = request.resolver_match.kwargs.get('user_id')
+            user = User.objects.get(id=user_id)
+            return request.user == user
+            
+        except User.DoesNotExist:
+            return False
 
 class IsOwnerOfUserAccount(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -90,3 +102,40 @@ class hasViewProjectCharterPermission(permissions.BasePermission):
         permissions = get_user_perms(request.user, project)
         return 'view_project_charter' in permissions 
 
+
+
+### Project Resource permissions
+
+class hasAddProjectResourcePermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        permissions = get_user_perms(request.user, obj)
+        return 'add_project_resource' in permissions 
+
+class hasChangeProjectResourcePermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        project = obj.project
+        permissions = get_user_perms(request.user, project)
+        return 'change_project_resource' in permissions 
+
+class hasDeleteProjectResourcePermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        project = obj.project
+        permissions = get_user_perms(request.user, project)
+        return 'delete_project_resource' in permissions 
+
+class hasViewProjectResourcePermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        project = obj.project
+        permissions = get_user_perms(request.user, project)
+        return 'view_project_resource' in permissions 
+
+class hasViewProjectResourceListPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        try:
+            project_id = request.resolver_match.kwargs.get('project_id')
+            project = Project.objects.get(id=project_id)
+            permissions = get_user_perms(request.user, project)
+            return 'view_project_resource' in permissions
+            
+        except Project.DoesNotExist:
+            return False

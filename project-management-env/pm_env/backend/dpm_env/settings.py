@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'project.apps.ProjectConfig',
     'project_charter.apps.ProjectCharterConfig',
     'project_budget.apps.ProjectBudgetConfig',
+    'resources.apps.ResourcesConfig',
 ]
 
 MIDDLEWARE = [

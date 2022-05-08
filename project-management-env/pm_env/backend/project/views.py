@@ -1,16 +1,16 @@
 from django.http import Http404
 from rest_framework import generics, status
 from .serializers import (ProjectCreateSerializer, ProjectViewSerializer, AddStakeholderSerializer, 
-    RemoveStakeholderSerializer, GetStakeholdersSerializer, StakeholderProjectsSerializer)
+    RemoveStakeholderSerializer, GetStakeholdersSerializer, StakeholderProjectsSerializer, )
 from rest_framework.response import Response
-from custom_permissions.permissions import (IsProjectManagementOffice, hasChangeProjectPermission, 
-    hasDeleteProjectPermission, hasViewProjectPermission, IsAuthorOfProject, IsOwnerOfUserAccount,)
+import custom_permissions.permissions as perm # import (IsProjectManagementOffice, hasChangeProjectPermission, 
+    # hasDeleteProjectPermission, hasViewProjectPermission, IsAuthorOfProject, IsOwnerOfUserAccount, RequestSenderIsRequestedUser)
 from .models import Project
 from accounts.models import User
 from guardian.shortcuts import assign_perm, get_user_perms, remove_perm
 
 
-def assign_full_project_perm_to_author(project, author):
+def assign_full_project_perm_to_stakeholder(project, author):
     user = User.objects.get(id=author.id)
     assign_perm('project.change_project', user, project)
     assign_perm('project.delete_project', user, project)
@@ -19,19 +19,23 @@ def assign_full_project_perm_to_author(project, author):
     assign_perm('project_charter.change_project_charter', user, project)
     assign_perm('project_charter.delete_project_charter', user, project)
     assign_perm('project_charter.view_project_charter', user, project)
-    
+    assign_perm('resources.add_project_resource', user, project)
+    assign_perm('resources.change_project_resource', user, project)
+    assign_perm('resources.delete_project_resource', user, project)
+    assign_perm('resources.view_project_resource', user, project)
+
 
 #   Create a new project
 class ProjectAPI(generics.GenericAPIView):
     name = 'create-project'
     serializer_class = ProjectCreateSerializer
-    permission_classes = [IsProjectManagementOffice,]
+    permission_classes = [perm.IsProjectManagementOffice,]
 
     def post(self, request, format='json'):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
-        assign_full_project_perm_to_author(project=project, author=project.author)
+        assign_full_project_perm_to_stakeholder(project=project, author=project.author)
 
         return Response(
             {
@@ -46,7 +50,7 @@ class ProjectAPI(generics.GenericAPIView):
 class EditProjectAPI(generics.UpdateAPIView):
     name = 'edit-project-name'
     serializer_class = ProjectCreateSerializer
-    permission_classes = [hasChangeProjectPermission,]
+    permission_classes = [perm.hasChangeProjectPermission,]
     queryset = Project.objects.all()
     http_method_names = ['patch']
 
@@ -67,14 +71,14 @@ class EditProjectAPI(generics.UpdateAPIView):
 class DeleteProjectAPI(generics.DestroyAPIView):
     name = 'delete-project'
     serializer_class = ProjectCreateSerializer
-    permission_classes = [hasDeleteProjectPermission,]
+    permission_classes = [perm.hasDeleteProjectPermission,]
     queryset = Project.objects.all()
 
 
 #   Get a project 
 class ProjectDetailsAPI(generics.RetrieveAPIView): 
     name = 'project-details'
-    permission_classes = [hasViewProjectPermission,]
+    permission_classes = [perm.hasViewProjectPermission,]
     queryset = Project.objects.all()
     serializer_class = ProjectViewSerializer
 
@@ -82,7 +86,7 @@ class ProjectDetailsAPI(generics.RetrieveAPIView):
 #   Get projects of stakeholder 
 class GetProjectsOfStakeholderAPI(generics.ListAPIView): 
     name = 'get-projects-of-stakeholder'
-    permission_classes = (hasViewProjectPermission, )
+    permission_classes = [perm.RequestSenderIsRequestedUser,]
     queryset = Project.objects.all()
     serializer_class = StakeholderProjectsSerializer
     model = serializer_class.Meta.model
@@ -105,7 +109,7 @@ class GetProjectsOfStakeholderAPI(generics.ListAPIView):
 class AddStakeholdersToProjectAPI(generics.UpdateAPIView):
     name = 'add-project-stakeholders'
     serializer_class = AddStakeholderSerializer
-    permission_classes = [hasChangeProjectPermission,]
+    permission_classes = [perm.hasChangeProjectPermission,]
     queryset = Project.objects.all()
     http_method_names = ['patch']
     lookup_url_kwarg = 'project_id'
@@ -127,7 +131,7 @@ class AddStakeholdersToProjectAPI(generics.UpdateAPIView):
 class RemoveStakeholdersFromProjectAPI(generics.UpdateAPIView):
     name = 'remove-project-stakeholders'
     serializer_class = RemoveStakeholderSerializer
-    permission_classes = [hasDeleteProjectPermission,]
+    permission_classes = [perm.hasDeleteProjectPermission,]
     queryset = Project.objects.all()
     http_method_names = ['patch']
     lookup_url_kwarg = 'project_id'
@@ -148,7 +152,7 @@ class RemoveStakeholdersFromProjectAPI(generics.UpdateAPIView):
 class GetStakeholdersOfProjectAPI(generics.RetrieveAPIView):
     name = 'get-stakeholders-of-project'
     serializer_class = GetStakeholdersSerializer
-    permission_classes = [hasViewProjectPermission,]
+    permission_classes = [perm.hasViewProjectPermission,]
     queryset = Project.objects.all()
     lookup_url_kwarg = 'project_id'
 
@@ -165,7 +169,7 @@ def validated_project_permissions(permissions):
         
 class AddProjectPermissionsOfUserAPI(generics.GenericAPIView):
     name = 'add-project-permissions'
-    permission_classes = [IsAuthorOfProject,]
+    permission_classes = [perm.IsAuthorOfProject,]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -225,9 +229,49 @@ class AddProjectPermissionsOfUserAPI(generics.GenericAPIView):
             )
 
 
+class AssignAllProjectPermissionsToStakeholderAPI(generics.GenericAPIView):
+    name = 'assign-all-project-permissions'
+    permission_classes = [perm.IsAuthorOfProject,]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            user_id = request.data.get('user_id')
+            user = User.objects.get(id=user_id)
+            project_id = request.data.get('project_id')
+            project = Project.objects.get(id=project_id)
+            permissions = request.data.get('permissions')
+            # check if a request user is a project author 
+            self.check_object_permissions(request, project)
+            # user is stakeholder of the project
+            if user in project.stakeholders.all():
+                assign_full_project_perm_to_stakeholder(project=project, author=user)
+                return Response(status=status.HTTP_201_CREATED)
+
+            return Response({
+                        'detail': 'User must be a stakeholder of the project to assign permissions.'
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except User.DoesNotExist:
+            return Response(
+                {
+                    'detail': 'User does not exist'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Project.DoesNotExist:
+            return Response(
+                {
+                    'detail': 'Project does not exist'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
+
 class DeleteProjectPermissionsOfUserAPI(generics.GenericAPIView):
     name = 'delete-project-permissions'
-    permission_classes = [IsAuthorOfProject,]
+    permission_classes = [perm.IsAuthorOfProject,]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -278,7 +322,7 @@ class DeleteProjectPermissionsOfUserAPI(generics.GenericAPIView):
             
 class GetProjectPermissionsOfUserAPI(generics.GenericAPIView):
     name = 'get-project-permissions'
-    permission_classes = [IsAuthorOfProject | IsOwnerOfUserAccount,]
+    permission_classes = [perm.IsAuthorOfProject | perm.IsOwnerOfUserAccount,]
 
     def get(self, request, *args, **kwargs):
         try:

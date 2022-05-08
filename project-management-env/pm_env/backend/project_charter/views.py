@@ -193,7 +193,7 @@ class AddProjectCharterPermissionsOfUserAPI(generics.GenericAPIView):
 
 
 class DeleteProjectCharterPermissionsOfUserAPI(generics.GenericAPIView):
-    name = 'delete-project-permissions'
+    name = 'delete-project-charter-permissions'
     permission_classes = [custom_perm.IsAuthorOfProject,]
 
     def post(self, request, *args, **kwargs):
