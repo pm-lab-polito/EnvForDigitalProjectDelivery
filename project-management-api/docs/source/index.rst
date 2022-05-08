@@ -2,7 +2,10 @@ Welcome to Project Management API's documentation!
 =========================================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+
+   ./how_it_works
+   ./documents_schemas
 
 Indices and tables
 ==================
