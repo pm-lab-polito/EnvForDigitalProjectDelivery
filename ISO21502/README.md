@@ -1,67 +1,51 @@
-- 1 Scope Introduction vii
-- 2 Normative references
-- 3	 Terms	and	definitions
-- 4 Project management concepts
-   - 4.1 Overview
-      - 4.1.1 General......................................................................................................................................................................................
-      - 4.1.2 Projects
-      - 4.1.3 Project management
-   - 4.2 Context
-      - 4.2.1 Impact of a project’s context
-      - 4.2.2 Organizational strategy and projects
-      - 4.2.3 Customer and supplier perspective.................................................................................................................
-      - 4.2.4 Project constraints
-      - 4.2.5 Projects as stand-alone, part of a programme or part of a portfolio
-   - 4.3 Project governance
-      - 4.3.1 Governance framework
-      - 4.3.2 Business case
-   - 4.4 Project life cycle
-   - 4.5 Project organization and roles
-      - 4.5.1 Project organization
-      - 4.5.2 Sponsoring organization
-      - 4.5.3 Project board
-      - 4.5.4 Project sponsor
-      - 4.5.5 Project assurance
-      - 4.5.6 Project manager
-      - 4.5.7 Project office
-      - 4.5.8 Work package leader
-      - 4.5.9 Project team members
-      - 4.5.10 Project stakeholders
-      - 4.5.11 Other roles
-   - 4.6 Competencies of project personnel
-- 5 Prerequisites for formalizing project management
-   - 5.1 Overview
-   - 5.2 Considerations for implementing project management
-   - 5.3 Continuous improvement of the project management environment
-   - 5.4 Alignment with organizational processes and systems
-## Integrated project management practices
-   - 6.1 Overview
-   - 6.2 Pre-project activities
-   - 6.3 Overseeing a project
-   - 6.4 Directing a project
-### 6.5 Initiating a project
+# ISO 21502:2020
 
-6.5.1 Overview
+## Introduction
 
-6.5.2 Project team mobilization
+This document provides guidance on concepts and practices for project management that are important for and have an impact on a project’s successful delivery.
 
-6.5.3 Project governance and management approach
+The target readership for this document includes, but is not limited to:
 
-6.5.4 Initial project justification
+* executive and senior management, to provide a better understanding of project management and to help them to give appropriate support and guidance to project managers and those individuals working on projects;
+* individuals involved in the governance, direction, assurance, audit and management of projects, such as project sponsors, project boards, auditors and project managers;
+* project managers and project team members, to have a common basis upon which to understand, conduct, compare, evaluate and communicate the practices used on their project;
+* developers of national or organizational project management standards, processes and methods.
 
-6.5.5 Initial project planning
+In addition, this document can also be useful to individuals involved in supporting:
 
-### 6.6 Controlling a project
+* the governance, direction and management of portfolios and programmes;
+* project teams, programme and project offices or similar organizational structures;
+* the academic study of project, programme and portfolio management;
+* functions related to the management management, procurement and legal.
 
-      - 6.6.1 Overview
-      - 6.6.2 Progressive justification
+## Contents
 
-      - 6.6.3 Managing project performance
-      - 6.6.4 Managing the start and close of each project phase.......................................................................
-      - 6.6.5 Managing the start, progress and close of each work package
-   - 6.7 Managing delivery
-   - 6.8 Closing or terminating a project
-   - 6.9 Post-project activities.....................................................................................................................................................................
+1. Scope
+2. Normative references
+3. Terms	and definitions
+4. Project management concepts
+   1. Overview
+   2. Context
+   3. Project governance
+   4. Project organization and roles
+   5. Competencies of project personnel
+5. Prerequisites for formalizing project management
+   1. Overview
+   2. Considerations for implementing project management
+   3. Continuous improvement of the project management environment
+   4. Alignment with organizational processes and systems
+6. Integrated project management practices
+   1. Overview
+   2. Pre-project activities
+   3. Overseeing a project
+   4. Directing a project
+   5. [Initiating a project](06_05-InitiatingProject.md)
+   6. Controlling a project
+   7. Managing delivery
+   8. Closing or terminating a project
+   9. Post-project activities
+
+### TODO
 - 7 Management practices for a project
    - 7.1 Overview
    - 7.2 Planning
