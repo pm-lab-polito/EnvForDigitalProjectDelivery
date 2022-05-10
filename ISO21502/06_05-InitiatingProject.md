@@ -9,7 +9,7 @@ Lessons learned from previous, relevant projects should be considered. The activ
 
 >NOTE 1: **“Initiating a project”** can also be referred to as **“starting a project”** or **“project initiation”**.
 
-*NOTE 2*:  See 4.5.6 for the project manager’s role concerning initiating a project.
+>NOTE 2: See 4.5.6 for the project manager’s role concerning initiating a project.
 
 ## Project team mobilization
 
