@@ -27,8 +27,9 @@ In addition, this document can also be useful to individuals involved in support
    1. Overview
    2. Context
    3. Project governance
-   4. Project organization and roles
-   5. Competencies of project personnel
+   4. Project life-cycle
+   5. [Project organization and roles](04_05-ProjectOrganizationRoles.md)
+   6. Competencies of project personnel
 5. Prerequisites for formalizing project management
    1. Overview
    2. Considerations for implementing project management
