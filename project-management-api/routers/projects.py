@@ -5,6 +5,7 @@ Module for the methods regarding projects
 from fastapi import APIRouter
 
 import routers.documents
+import routers.msprojects
 from datatypes.models import *
 from datatypes.schemas import ProjectCreateSchema
 from dependencies import *
@@ -16,6 +17,7 @@ router = APIRouter(
 )
 
 router.include_router(routers.documents.router, prefix="/{project_name}")
+router.include_router(routers.msprojects.router, prefix="/{project_name}")
 
 
 @router.get("/",
