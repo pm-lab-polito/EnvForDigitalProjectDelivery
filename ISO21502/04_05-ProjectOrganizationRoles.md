@@ -4,7 +4,7 @@
 
 ## Project Manager
 
-The project manager is accountable to the project sponsor or project board for completing the project’s 
+The project manager is accountable to the project sponsor or project board for completing the project’s
 defined scope, and for leading and managing the project team.
 
 The project manager’s other activities

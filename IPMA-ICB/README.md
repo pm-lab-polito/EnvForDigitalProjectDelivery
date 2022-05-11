@@ -15,7 +15,7 @@
    3. Perspective
    4. People
    5. Practice
-      1. Project design
+      1. [Project design](04_05_01-ProjectDesign.md)
       2. Requirements and objectives
       3. Scope
       4. Time
