@@ -83,6 +83,8 @@ async def add_document_schema_to_project(request_body: Dict    = Depends(get_req
                     computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_msproj.tasks)))
                 case MSProjectField.resources.value:
                     computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_msproj.resources)))
+                case MSProjectField.proj_info.value:
+                    computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_msproj.proj_info)))
             session.add(computed_field)
 
     for permission in (DocPermissions.view, DocPermissions.edit, DocPermissions.delete):

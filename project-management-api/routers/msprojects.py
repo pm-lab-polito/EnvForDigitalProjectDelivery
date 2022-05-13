@@ -56,10 +56,18 @@ async def add_ms_file_to_project(file: UploadFile = File(...),
         db_task["level"] = task.getOutlineLevel()
         db_task["duration"] = str(task.getDuration().toString())
         db_task["predecessors"] = list()
+        db_task["ef"] = str(task.getEarlyFinish().toString())
+        db_task["es"] = str(task.getEarlyStart().toString())
+        db_task["lf"] = str(task.getLateFinish().toString())
+        db_task["ls"] = str(task.getLateStart().toString())
+        db_task["start"] = str(task.getStart().toString())
+        db_task["finish"] = str(task.getFinish().toString())
+        db_task["cost"] = str(task.getCost().toString())
         db_task["id"] = str(task.getID().toString())
         for rel in task.getPredecessors():
             db_pred = dict()
             db_pred["target_task"] = str(rel.getTargetTask().getName().toString())
+            db_pred["target_task_id"] = str(rel.getTargetTask().getID().toString())
             db_pred["lag"] = str(rel.getLag().toString())
             db_pred["type"] = str(rel.getType().toString())
             db_task["predecessors"].append(db_pred)
@@ -75,6 +83,30 @@ async def add_ms_file_to_project(file: UploadFile = File(...),
             db_res["id"] = str(res.getID().toString())
             resources.append(db_res)
 
+    project_properties = project.getProjectProperties()
+
+    proj_info = dict()
+    if project_properties.getStartDate() is not None:
+        proj_info["baseline_start"] = str(project_properties.getStartDate().toString())
+
+    if project_properties.getActualStart() is not None:
+        proj_info["actual_start"] = str(project_properties.getActualStart().toString())
+
+    if project_properties.getFinishDate() is not None:
+        proj_info["baseline_finish"] = str(project_properties.getFinishDate().toString())
+
+    if project_properties.getActualFinish() is not None:
+        proj_info["actual_finish"] = str(project_properties.getActualFinish().toString())
+
+    if project_properties.getBaselineDuration() is not None:
+        proj_info["baseline_duration"] = str(project_properties.getBaselineDuration().toString())
+
+    if project_properties.getActualDuration() is not None:
+        proj_info["actual_duration"] = str(project_properties.getActualDuration().toString())
+
+    if project_properties.getCurrencySymbol() is not None:
+        proj_info["currency_code"] = str(project_properties.getCurrencyCode().toString())
+
     tmp = crud.get_ms_project(session, db_project.project_name, file_name)
 
     if tmp is not None:
@@ -87,6 +119,7 @@ async def add_ms_file_to_project(file: UploadFile = File(...),
     db_msproj.update_author_name = user.user_name
     db_msproj.tasks = tasks
     db_msproj.resources = resources
+    db_msproj.proj_info = proj_info
 
     session.add(db_msproj)
     session.commit()
@@ -99,6 +132,8 @@ async def add_ms_file_to_project(file: UploadFile = File(...),
                 computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_msproj.tasks)))
             case MSProjectField.resources:
                 computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_msproj.resources)))
+            case MSProjectField.proj_info:
+                computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_msproj.proj_info)))
         session.add(computed_field)
 
     session.add(db_msproj)

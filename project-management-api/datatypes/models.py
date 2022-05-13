@@ -272,6 +272,7 @@ class MSProject(SQLModel, table=True):
     ms_project_name   : str        = Field(default=None, primary_key=True)
     tasks             : List[Dict] = Field(default=[], sa_column=Column(JSON))
     resources         : List[Dict] = Field(default=[], sa_column=Column(JSON))
+    proj_info         : Dict       = Field(default={}, sa_column=Column(JSON))
 
     # relationship name      | type                           | options
     computed_fields_reference: List["MSProjectComputedField"] = \
@@ -286,10 +287,12 @@ class MSProject(SQLModel, table=True):
         ms_project_name = "ms_project_name"
         tasks           = "tasks"
         resources       = "resources"
+        proj_info       = "proj_info"
 
 class MSProjectField(enum.Enum):
     tasks     = "tasks"
     resources = "resources"
+    proj_info = "proj_info"
 
 class MSProjectComputedField(SQLModel, table=True):
     # field name   | type            | options
