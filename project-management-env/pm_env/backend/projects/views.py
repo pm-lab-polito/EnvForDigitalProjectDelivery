@@ -157,6 +157,23 @@ class GetStakeholdersOfProjectAPI(generics.RetrieveAPIView):
     lookup_url_kwarg = 'project_id'
 
 
+class GetActualCostOfProjectAPI(generics.GenericAPIView):
+    name = 'get-actual-cost-of-project'
+    serializer_class = ProjectViewSerializer
+    permission_classes = [perm.hasViewProjectPermission,]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            id = self.kwargs.get('pk')
+            project = Project.objects.get(id=id)
+            actual_cost = project.actual_cost()
+            return Response(actual_cost)
+            
+        except Project.DoesNotExist:
+            raise Http404
+
+
+
 #### Permissions #####
 def validated_project_permissions(permissions):
     if permissions and len(permissions) > 0:

@@ -1,6 +1,6 @@
 from rest_framework import generics, status
-from project_budget.models import ProjectBudget
-from .serializers import ProjectBudgetSerializer
+from project_budget.models import (ProjectBudget, ResourceSpending, ContractSpending)
+from .serializers import (ProjectBudgetSerializer, ResourceSpendingSerializer, ContractSpendingSerializer)
 from rest_framework.response import Response
 import custom_permissions.permissions as custom_perm
 from project_charter.models import ProjectCharter
@@ -93,6 +93,21 @@ class TotalProjectBudgetAPI(generics.ListAPIView):
         return Response(serializer.data)
 
 
+class GetActualCostOfProjectByBudgetAPI(generics.GenericAPIView):
+    name = 'get-actual-cost-of-project-by-budget'
+    serializer_class = ProjectBudgetSerializer
+    permission_classes = []
+
+    def get(self, request, *args, **kwargs):
+        try:
+            budget_id = self.kwargs.get('pk')
+            budget = ProjectBudget.objects.get(id=budget_id)
+            actual_cost = budget.actual_cost()
+            return Response(actual_cost)
+            
+        except ProjectBudget.DoesNotExist:
+            raise Http404
+
 
 #   Edit a project budget
 class EditProjectBudgetAPI(generics.UpdateAPIView):
@@ -113,3 +128,100 @@ class EditProjectBudgetAPI(generics.UpdateAPIView):
             },  
             status=status.HTTP_204_NO_CONTENT
         )
+
+
+
+
+
+############ Resource Spending ############
+
+class AddResourceSpendingAPI(generics.CreateAPIView):
+    name = 'add-resource-spending'
+    serializer_class = ResourceSpendingSerializer
+    permission_classes = []
+
+
+class UpdateResourceSpendingAPI(generics.UpdateAPIView):
+    name = 'update-resource-spending'
+    serializer_class = ResourceSpendingSerializer
+    queryset = ResourceSpending.objects.all()
+    permission_classes = []
+
+
+class GetResourceSpendingDetailsAPI(generics.RetrieveAPIView):
+    name = 'get-resource-spending-details'
+    serializer_class = ResourceSpendingSerializer
+    queryset = ResourceSpending.objects.all()
+    permission_classes = []
+
+
+class GetResourceSpendingsByBudgetAPI(generics.ListAPIView):
+    name = 'get-resource-spendings-by-budget'
+    serializer_class = ResourceSpendingSerializer
+    model = serializer_class.Meta.model
+    permission_classes = []
+    lookup_url_kwarg = 'budget_id'
+
+    def get_queryset(self):
+        try:
+            budget_id = self.kwargs.get('budget_id')
+            budget = ProjectBudget.objects.get(id=budget_id)
+            qs = self.model.objects.filter(budget=budget)
+            return qs
+        except ProjectBudget.DoesNotExist:
+            raise Http404
+
+
+class DeleteResourceSpendingAPI(generics.DestroyAPIView):
+    name = 'delete-resource-spending'
+    serializer_class = ResourceSpendingSerializer
+    queryset = ResourceSpending.objects.all()
+    permission_classes = []
+
+
+
+
+############ Contract Spending ############
+
+class AddContractSpendingAPI(generics.CreateAPIView):
+    name = 'add-contract-spending'
+    serializer_class = ContractSpendingSerializer
+    permission_classes = []
+
+
+class UpdateContractSpendingAPI(generics.UpdateAPIView):
+    name = 'update-contract-spending'
+    serializer_class = ContractSpendingSerializer
+    queryset = ContractSpending.objects.all()
+    permission_classes = []
+
+
+class GetContractSpendingDetailsAPI(generics.RetrieveAPIView):
+    name = 'get-contract-spending-details'
+    serializer_class = ContractSpendingSerializer
+    queryset = ContractSpending.objects.all()
+    permission_classes = []
+
+
+class GetContractSpendingsByBudgetAPI(generics.ListAPIView):
+    name = 'get-contract-spendings-by-budget'
+    serializer_class = ContractSpendingSerializer
+    model = serializer_class.Meta.model
+    permission_classes = []
+    lookup_url_kwarg = 'budget_id'
+
+    def get_queryset(self):
+        try:
+            budget_id = self.kwargs.get('budget_id')
+            budget = ProjectBudget.objects.get(id=budget_id)
+            qs = self.model.objects.filter(budget=budget)
+            return qs
+        except ProjectBudget.DoesNotExist:
+            raise Http404
+
+
+class DeleteContractSpendingAPI(generics.DestroyAPIView):
+    name = 'delete-contract-spending'
+    serializer_class = ContractSpendingSerializer
+    queryset = ContractSpending.objects.all()
+    permission_classes = []

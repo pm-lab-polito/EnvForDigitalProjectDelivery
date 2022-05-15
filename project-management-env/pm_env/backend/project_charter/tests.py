@@ -4,7 +4,7 @@ from rest_framework.test import APITestCase
 from accounts.models import User
 from project_charter.models import ProjectCharter, BusinessCaseSWOT
 from accounts import views as account_views
-from project import views as project_views
+from projects import views as project_views
 from project_charter import views as project_charter_views
 
 

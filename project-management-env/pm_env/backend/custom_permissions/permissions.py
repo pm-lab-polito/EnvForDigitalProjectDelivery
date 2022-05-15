@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from guardian.shortcuts import get_user_perms
 from accounts.models import User
-from project.models import Project
+from projects.models import Project
 
 
 class IsProjectManagementOffice(permissions.BasePermission):

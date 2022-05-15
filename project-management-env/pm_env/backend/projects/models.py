@@ -1,5 +1,7 @@
 from django.db import models
 from accounts.models import User
+import project_budget
+from django.db.models import Sum
 
 
 class Project(models.Model):
@@ -7,6 +9,16 @@ class Project(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     stakeholders = models.ManyToManyField(User, blank=True, related_name="stakeholders")
+
+    def actual_cost(self):
+        resource_spendings = project_budget.models.ResourceSpending.objects.all().filter(project=self).aggregate(Sum('amount')).get('amount__sum')
+        contract_spendings = project_budget.models.ContractSpending.objects.all().filter(project=self).aggregate(Sum('amount')).get('amount__sum')
+        actual_cost= resource_spendings + contract_spendings
+        return {
+            "actual_cost": actual_cost,
+            "resource_spendings": resource_spendings,
+            "contract_spendings": contract_spendings
+        }
 
     def __str__(self):
         return self.project_name

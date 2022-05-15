@@ -2,9 +2,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from accounts.models import User
-from project.models import Project
+from projects.models import Project
 from accounts import views as account_views
-from project import views as project_views
+from projects import views as project_views
 from knox.models import AuthToken
 
 

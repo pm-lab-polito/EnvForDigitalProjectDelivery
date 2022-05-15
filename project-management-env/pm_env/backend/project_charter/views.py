@@ -4,7 +4,7 @@ from rest_framework.response import Response
 import custom_permissions.permissions as custom_perm
 from .models import ProjectCharter, BusinessCaseSWOT
 from accounts.models import User
-from project.models import Project
+from projects.models import Project
 from guardian.shortcuts import assign_perm, remove_perm
 
 #   Create a new project charter

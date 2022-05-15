@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from .serializers import ResourceSerializer
 from rest_framework.response import Response
 from .models import Resource
-from project.models import Project
+from projects.models import Project
 from accounts.models import User
 from django.http import Http404
 from custom_permissions import permissions as perm

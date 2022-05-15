@@ -3,7 +3,8 @@ from .views import (ProjectAPI, EditProjectAPI, DeleteProjectAPI, ProjectDetails
                         AddProjectPermissionsOfUserAPI, GetProjectPermissionsOfUserAPI,
                         DeleteProjectPermissionsOfUserAPI, AddStakeholdersToProjectAPI, 
                         RemoveStakeholdersFromProjectAPI, GetStakeholdersOfProjectAPI, 
-                        GetProjectsOfStakeholderAPI, AssignAllProjectPermissionsToStakeholderAPI)
+                        GetProjectsOfStakeholderAPI, AssignAllProjectPermissionsToStakeholderAPI,
+                        GetActualCostOfProjectAPI)
 
 
 urlpatterns = [
@@ -19,6 +20,8 @@ urlpatterns = [
         name='remove-project-stakeholders'),
     path('stakeholders/get/<int:project_id>/', GetStakeholdersOfProjectAPI.as_view(), 
             name='get-stakeholders-of-project'),
+    path('<int:pk>/get/actual-cost/', GetActualCostOfProjectAPI.as_view(), name='get-actual-cost-of-project'),
+    
     path('permissions/add/', AddProjectPermissionsOfUserAPI.as_view(), name='add-project-permissions'),
     path('permissions/assign-all/', AssignAllProjectPermissionsToStakeholderAPI.as_view(), 
         name='assign-all-project-permissions'),
@@ -28,5 +31,6 @@ urlpatterns = [
         name='delete-project-permissions'),
     
     path('project-charter/', include('project_charter.urls'), name='project-charter'),
-    path('resources/', include('resources.urls'), name='resources'),
+    path('resources/', include('project_resources.urls'), name='project-resources'),
+    path('procurements/', include('project_procurements.urls'), name='procurements'),
 ]

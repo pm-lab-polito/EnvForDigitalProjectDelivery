@@ -1,5 +1,5 @@
 from django.db import models
-from project.models import Project
+from projects.models import Project
 
 
 class Resource(models.Model):
@@ -9,6 +9,8 @@ class Resource(models.Model):
     cost = models.FloatField(default=0.00)
     category = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
-        def __str__(self):
-            return self.name
+        ordering = ('project', 'name')
