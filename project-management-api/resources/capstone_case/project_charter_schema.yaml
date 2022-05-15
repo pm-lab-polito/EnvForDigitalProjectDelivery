@@ -1,0 +1,12 @@
+project_charter:
+  jsonschema:
+    properties:
+      overview: { type: string }
+      impact: { type: string }
+      organization: { type: string }
+    additionalProperties: false
+  ms_computed_fields:
+    scope:
+      ms_project_name: example
+      field_from: tasks
+      jsonpath: $[?(@.level < 3)].name

@@ -137,23 +137,27 @@ class Document(SQLModel, table=True):
     creation_date  : datetime | None = Field(default=None)
     updated_date   : datetime | None = Field(default=None)
 
-    # relationship name | type                       | options
-    patches             : List["Patch"]              = Relationship(back_populates="document")
-    project             : Project                    = Relationship(back_populates="documents")
-    permissions         : List["DocumentPermission"] = Relationship(back_populates="document",
+    # relationship name | type                          | options
+    patches             : List["Patch"]                 = Relationship(back_populates="document")
+    project             : Project                       = Relationship(back_populates="documents")
+    permissions         : List["DocumentPermission"]    = Relationship(back_populates="document",
+                                                                       sa_relationship_kwargs={
+                                                                           "cascade": "all, delete, delete-orphan"})
+    documents_processes : List["DocumentProcess"]       = Relationship(back_populates="document",
                                                                     sa_relationship_kwargs={
                                                                         "cascade": "all, delete, delete-orphan"})
-    documents_processes : List["DocumentProcess"]    = Relationship(back_populates="document",
-                                                                    sa_relationship_kwargs={
-                                                                        "cascade": "all, delete, delete-orphan"})
-    computed_fields     : List["ComputedField"]      = \
+    computed_fields     : List["ComputedField"]         = \
         Relationship(sa_relationship_kwargs={"primaryjoin": 'Document.document_name==ComputedField.field_document_name',
                                              "lazy": "joined",
                                              "cascade": "all, delete, delete-orphan"})
-    computed_fields_reference: List["ComputedField"] = \
+    computed_fields_reference: List["ComputedField"]    = \
         Relationship(back_populates="reference_document",
                      sa_relationship_kwargs={"primaryjoin": 'Document.document_name==ComputedField.reference_document_name',
                                              "lazy": "joined"})
+    ms_computed_fields : List["MSProjectComputedField"] = \
+        Relationship(sa_relationship_kwargs={"primaryjoin": 'Document.document_name==MSProjectComputedField.field_document_name',
+                                             "lazy": "joined",
+                                             "cascade": "all, delete, delete-orphan"})
 
     class Fields(metaclass=StringFields):
         table_name      = "document"
@@ -259,14 +263,72 @@ class DocumentProcess(SQLModel, table=True):
         document_name = "document_name"
         document_role = "document_role"
 
+
+class MSProject(SQLModel, table=True):
+    # field name      | type       | options
+    project_name      : str        = Field(default=None, primary_key=True, foreign_key=Project.Fields.project_name)
+    author_name       : str        = Field(default=None, primary_key=True, foreign_key=User.Fields.user_name)
+    update_author_name: str        = Field(default=None, primary_key=True, foreign_key=User.Fields.user_name)
+    ms_project_name   : str        = Field(default=None, primary_key=True)
+    tasks             : List[Dict] = Field(default=[], sa_column=Column(JSON))
+    resources         : List[Dict] = Field(default=[], sa_column=Column(JSON))
+    proj_info         : Dict       = Field(default={}, sa_column=Column(JSON))
+
+    # relationship name      | type                           | options
+    computed_fields_reference: List["MSProjectComputedField"] = \
+        Relationship(back_populates="ms_project",
+                     sa_relationship_kwargs={
+                         "primaryjoin": 'MSProject.ms_project_name==MSProjectComputedField.ms_project_name',
+                         "lazy": "joined"})
+
+    class Fields(metaclass=StringFields):
+        table_name      = "msproject"
+        project_name    = "project_name"
+        ms_project_name = "ms_project_name"
+        tasks           = "tasks"
+        resources       = "resources"
+        proj_info       = "proj_info"
+
+class MSProjectField(enum.Enum):
+    tasks     = "tasks"
+    resources = "resources"
+    proj_info = "proj_info"
+
+class MSProjectComputedField(SQLModel, table=True):
+    # field name   | type            | options
+    project_name       : str         = Field(default=None, primary_key=True, foreign_key=Project.Fields.project_name)
+    ms_project_name    : str         = Field(default=None, primary_key=True, foreign_key=MSProject.Fields.ms_project_name)
+    field_document_name: str         = Field(default=None, primary_key=True, foreign_key=Document.Fields.document_name)
+    field_name         : str         = Field(default=None, primary_key=True)
+    jsonpath           : str         = Field(nullable=False)
+    field_value        : List | None = Field(default=[], sa_column=Column(JSON))
+    field_from         : str         = Field(sa_column=Column(Enum(MSProjectField)), nullable=False)
+
+    # relationship name | type     | options
+    field_document      : Document = Relationship(
+        sa_relationship_kwargs={"primaryjoin": f'Document.document_name==MSProjectComputedField.field_document_name',
+                                "lazy": "joined"})
+    ms_project          : MSProject = Relationship(back_populates="computed_fields_reference")
+
+    class Fields(metaclass=StringFields):
+        table_name          = "msprojectcomputedfield"
+        project_name        = "project_name"
+        ms_project_name     = "ms_project_name"
+        field_document_name = "field_document_name"
+        field_name          = "field_name"
+        jsonpath            = "jsonpath"
+        field_value         = "field_value"
+        field_from          = "field_from"
+
+
 # https://github.com/tiangolo/sqlmodel/issues/10
 class ComputedField(SQLModel, table=True):
-    # field name           | type | options
-    project_name           : str  = Field(default=None, primary_key=True, foreign_key=Project.Fields.project_name)
-    field_document_name    : str  = Field(default=None, primary_key=True, foreign_key=Document.Fields.document_name)
-    reference_document_name: str  = Field(default=None,                   foreign_key=Document.Fields.document_name)
-    field_name             : str  = Field(default=None, primary_key=True)
-    jsonpath               : str  = Field(nullable=False)
+    # field name           | type        | options
+    project_name           : str         = Field(default=None, primary_key=True, foreign_key=Project.Fields.project_name)
+    field_document_name    : str         = Field(default=None, primary_key=True, foreign_key=Document.Fields.document_name)
+    reference_document_name: str         = Field(default=None,                   foreign_key=Document.Fields.document_name)
+    field_name             : str         = Field(default=None, primary_key=True)
+    jsonpath               : str         = Field(nullable=False)
     field_value            : List | None = Field(default=[], sa_column=Column(JSON))
 
     # relationship name | type     | options
@@ -297,22 +359,35 @@ class ComputedFieldReturn(SQLModel):
     field_name : str  | None = None
     field_value: List | None = None
 
+class MSComputedFieldReturn(SQLModel):
+    field_name : str  | None = None
+    field_value: List | None = None
+
 class DocumentReturn(SQLModel):
-    project_name   : str      | None
-    document_name  : str      | None
-    author_name    : str      | None
-    jsonschema     : Dict     | None
-    first          : Dict     | None
-    last           : Dict     | None
-    creation_date  : datetime | None
-    patches        : List[PatchReturn]         = []
-    computed_fields: List[ComputedFieldReturn] = []
+    project_name      : str      | None
+    document_name     : str      | None
+    author_name       : str      | None
+    jsonschema        : Dict     | None
+    first             : Dict     | None
+    last              : Dict     | None
+    creation_date     : datetime | None
+    patches           : List[PatchReturn]           = []
+    computed_fields   : List[ComputedFieldReturn]   = []
+    ms_computed_fields: List[MSComputedFieldReturn] = []
 
     class Config:
         arbitrary_types_allowed = True
 
     @validator('computed_fields')
     def transform_comp_fields(cls, v: list[ComputedFieldReturn]):
+        tmp = list(map(lambda x: (x.field_name, x.field_value), v))
+        res = defaultdict(list)
+        for k, v in tmp:
+            res[k] = v
+        return res
+
+    @validator('ms_computed_fields')
+    def transform_ms_comp_fields(cls, v: list[ComputedFieldReturn]):
         tmp = list(map(lambda x: (x.field_name, x.field_value), v))
         res = defaultdict(list)
         for k, v in tmp:

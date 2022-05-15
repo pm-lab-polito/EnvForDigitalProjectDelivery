@@ -66,6 +66,27 @@ async def add_document_schema_to_project(request_body: Dict    = Depends(get_req
                                       reference_document_name =field_body['reference_document'],
                                       jsonpath                =field_body['jsonpath']))
 
+    if "ms_computed_fields" in document_body.keys():
+        ms_computed_fields = document_body['ms_computed_fields']
+
+        for field_name, field_body in ms_computed_fields.items():
+            computed_field = MSProjectComputedField(project_name        =db_project.project_name,
+                                                    ms_project_name     =field_body['ms_project_name'],
+                                                    field_document_name =document_name,
+                                                    field_name          =field_name,
+                                                    field_from          =field_body['field_from'],
+                                                    jsonpath            =field_body['jsonpath'])
+            jsonpath_expr = jsonpath_ng.ext.parse(computed_field.jsonpath)
+            db_msproj = crud.get_ms_project(session, db_project.project_name, computed_field.ms_project_name)
+            match field_body['field_from']:
+                case MSProjectField.tasks.value:
+                    computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_msproj.tasks)))
+                case MSProjectField.resources.value:
+                    computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_msproj.resources)))
+                case MSProjectField.proj_info.value:
+                    computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_msproj.proj_info)))
+            session.add(computed_field)
+
     for permission in (DocPermissions.view, DocPermissions.edit, DocPermissions.delete):
         session.add(DocumentPermission(project_name=db_project.project_name, document_name=document_name,
                                        user_name=user.user_name, permission=permission))
