@@ -23,7 +23,8 @@ from security.schemas import TokenData
 from security.utils import ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-sqlite_file_name = "./db/database.db"
+sqlite_file_name = "././db/database.db"  # local volume
+# sqlite_file_name = "/db/database.db" # docker volume
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}

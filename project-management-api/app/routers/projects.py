@@ -4,8 +4,7 @@ Module for the methods regarding projects
 
 from fastapi import APIRouter
 
-import routers.documents
-import routers.msprojects
+from routers import msprojects, documents
 from datatypes.models import *
 from datatypes.schemas import ProjectCreateSchema
 from dependencies import *
@@ -16,8 +15,8 @@ router = APIRouter(
     dependencies=[]
 )
 
-router.include_router(routers.documents.router, prefix="/{project_name}")
-router.include_router(routers.msprojects.router, prefix="/{project_name}")
+router.include_router(documents.router, prefix="/{project_name}")
+router.include_router(msprojects.router, prefix="/{project_name}")
 
 
 @router.get("/",
@@ -78,10 +77,10 @@ async def create_project(user        : User    = Depends(get_current_active_user
         if "documents" in project_body.keys():
 
             for doc, body in project_body['documents'].items():
-                await routers.documents.add_document_schema_to_project(request_body={doc: body},
-                                                                       user=user,
-                                                                       db_project=project,
-                                                                       session=session)
+                await documents.add_document_schema_to_project(request_body={doc: body},
+                                                               user=user,
+                                                               db_project=project,
+                                                               session=session)
             # document_list = [Document(project_name=project_name,
             #                           document_name=doc,
             #                           author_name=user.user_name,
@@ -141,8 +140,7 @@ async def create_project(user        : User    = Depends(get_current_active_user
 
 @router.get("/{project_name}",
             response_model=ProjectReturn,
-            dependencies=[Depends(get_current_active_user),
-                          Depends(require_project_permission(Permissions.view))])
+            dependencies=[Depends(require_project_permission(Permissions.view))])
 def get_project_by_name(session   : Session = Depends(get_session),
                         user      : User    = Depends(get_current_active_user),
                         db_project: Project = Depends(get_project)):

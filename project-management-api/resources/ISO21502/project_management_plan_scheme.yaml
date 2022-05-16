@@ -1,0 +1,22 @@
+project_management_plan:
+  jsonschema:
+    properties:
+      introduction: { type: string }
+      schedule: { type: string }
+    additionalProperties: false
+  computed_fields:
+    project_scope:
+      reference_document: project_charter
+      jsonpath: $.overview
+    milestone_list:
+      reference_document: work_breakdown_structure
+      jsonpath: $.milestones[*]
+    change_management_plan:
+      reference_document: change_management_plan
+      jsonpath: $
+    communications_management_plan:
+      reference_document: communications_management_plan
+      jsonpath: $
+    project_scope_management_plan:
+      reference_document: project_scope_management_plan
+      jsonpath: $
