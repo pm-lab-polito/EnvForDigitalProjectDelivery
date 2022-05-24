@@ -172,6 +172,7 @@ class GetActualCostOfProjectAPI(generics.GenericAPIView):
     name = 'get-actual-cost-of-project'
     serializer_class = ProjectViewSerializer
     permission_classes = [perm.hasViewProjectPermission,]
+    queryset = Project.objects.all()
 
     def get(self, request, *args, **kwargs):
         try:
@@ -346,6 +347,7 @@ class DeleteProjectPermissionsOfUserAPI(generics.GenericAPIView):
 class GetProjectPermissionsOfUserAPI(generics.GenericAPIView):
     name = 'get-project-permissions'
     permission_classes = [perm.IsAuthorOfProject | perm.IsOwnerOfUserAccount,]
+
 
     def get(self, request, *args, **kwargs):
         try:

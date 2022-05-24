@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'knox', 
     'django_extensions',
     'guardian',
+    'drf_yasg',
 
     #   project apps
     'accounts.apps.AccountsConfig',

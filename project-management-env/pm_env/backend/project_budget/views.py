@@ -151,7 +151,7 @@ class AddResourceSpendingAPI(generics.CreateAPIView):
             return Response(
                 {
                     'detail': 'Project resource added successfully.',
-                    'project': ResourceSpendingSerializer(resource, context=self.get_serializer_context()).data,
+                    'resource-spending': ResourceSpendingSerializer(resource, context=self.get_serializer_context()).data,
                 },
                 status=status.HTTP_201_CREATED
             )
@@ -218,7 +218,7 @@ class AddContractSpendingAPI(generics.CreateAPIView):
             return Response(
                 {
                     'detail': 'Procurement contract added successfully.',
-                    'project': ContractSpendingSerializer(contract, context=self.get_serializer_context()).data,
+                    'contract-spending': ContractSpendingSerializer(contract, context=self.get_serializer_context()).data,
                 },
                 status=status.HTTP_201_CREATED
             )
