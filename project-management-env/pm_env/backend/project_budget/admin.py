@@ -18,7 +18,7 @@ admin.site.register(ProjectBudget, CustomProjectBudgetManager)
 
 class CustomResourceSpendingManager(admin.ModelAdmin):
     ordering = ('project', 'budget') 
-    list_display = ('project', 'resource', 'budget', 'assignment', 'amount', 'description', 'date')
+    list_display = ('project', 'resource', 'budget', 'assignment', 'amount', 'description', 'date', 'approval_status')
     search_fields = ('project', 'resource', 'budget')
     readonly_fields = ('id',)
 
@@ -31,7 +31,7 @@ admin.site.register(ResourceSpending, CustomResourceSpendingManager)
 
 class CustomContractSpendingManager(admin.ModelAdmin):
     ordering = ('project', 'budget') 
-    list_display = ('project', 'contract', 'budget', 'amount', 'description', 'date')
+    list_display = ('project', 'contract', 'budget', 'amount', 'description', 'date', 'approval_status')
     search_fields = ('project', 'contract', 'budget')
     readonly_fields = ('id',)
 

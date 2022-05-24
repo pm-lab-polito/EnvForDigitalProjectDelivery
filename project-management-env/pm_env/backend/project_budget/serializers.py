@@ -50,7 +50,12 @@ class ResourceSpendingSerializer(serializers.ModelSerializer):
             description = validated_data.get('description'),
             date = date
         )
-            
+
+        # check if actual cost (including last spending) is greater than current budget, deny last spending    
+        if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
+            instance.approval_status = 'denied'
+            instance.save()
+
         return instance
 
     def update(self, instance, validated_data):
@@ -58,13 +63,20 @@ class ResourceSpendingSerializer(serializers.ModelSerializer):
         instance.description = validated_data.get("description", instance.description)
         instance.date = validated_data.get("date", instance.date)
         instance.amount = instance.assignment * instance.resource.cost
+        
+        # check if actual cost (including last updated spending) is greater than current budget, deny last update    
+        if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
+            raise serializers.ValidationError('You are over budget.')
+        else: 
+            instance.approval_status = 'approved'
+
         instance.save()
         return instance
 
 
     class Meta:
         model = ResourceSpending
-        fields = ('id', 'project', 'resource', 'budget', 'assignment', 'amount', 'description', 'date')
+        fields = ('id', 'project', 'resource', 'budget', 'assignment', 'amount', 'description', 'date', 'approval_status')
 
 
 
@@ -83,6 +95,11 @@ class ContractSpendingSerializer(serializers.ModelSerializer):
             description = validated_data.get('description'),
             date = date
         )
+
+        # check if actual cost (including last updated spending) is greater than current budget, deny last update    
+        if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
+            instance.approval_status = 'denied'
+            instance.save()
             
         return instance
 
@@ -91,10 +108,17 @@ class ContractSpendingSerializer(serializers.ModelSerializer):
         instance.description = validated_data.get("description", instance.description)
         instance.date = validated_data.get("date", instance.date)
         instance.amount = instance.contract.total_cost()
+
+        # check if actual cost (including last updated spending) is greater than current budget, deny last update    
+        if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
+            raise serializers.ValidationError('You are over budget.')
+        else: 
+            instance.approval_status = 'approved'
+
         instance.save()
         return instance
 
 
     class Meta:
         model = ContractSpending
-        fields = ('id', 'project', 'contract', 'budget', 'amount', 'description', 'date')
+        fields = ('id', 'project', 'contract', 'budget', 'amount', 'description', 'date', 'approval_status')

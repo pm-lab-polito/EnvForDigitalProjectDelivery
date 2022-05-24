@@ -4,7 +4,7 @@ from .models import Contract
 
 class CustomContractManager(admin.ModelAdmin):
     ordering = ('project',) 
-    list_display = ('project', 'product', 'description', 'unit_price', 'assignment', 'supplier', 'date')
+    list_display = ('project', 'product', 'description', 'unit_price', 'unit', 'assignment', 'supplier', 'date')
     search_fields = ('project', 'product')
     readonly_fields = ('id',)
 

@@ -2,6 +2,7 @@ from rest_framework import generics, status
 from .serializers import ProjectCharterSerializer, BusinessCaseSWOTSerializer
 from rest_framework.response import Response
 import custom_permissions.permissions as custom_perm
+from .permissions import * 
 from .models import ProjectCharter, BusinessCaseSWOT
 from accounts.models import User
 from projects.models import Project
@@ -11,7 +12,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 class ProjectCharterAPI(generics.GenericAPIView):
     name = 'create-project-charter'
     serializer_class = ProjectCharterSerializer
-    permission_classes = [custom_perm.hasAddProjectCharterPermission | custom_perm.IsAuthorOfProject,]
+    permission_classes = [hasAddProjectCharterPermission | custom_perm.IsAuthorOfProject,]
 
     def post(self, request, format='json'):
         serializer = self.get_serializer(data=request.data)
@@ -33,8 +34,7 @@ class ProjectCharterAPI(generics.GenericAPIView):
 class DeleteProjectCharterAPI(generics.DestroyAPIView):
     name = 'delete-project-charter'
     serializer_class = ProjectCharterSerializer
-    permission_classes = [custom_perm.hasDeleteProjectCharterPermission |
-         custom_perm.hasDeleteProjectPermission,]
+    permission_classes = [hasDeleteProjectCharterPermission,]
     queryset = ProjectCharter.objects.all()
 
 
@@ -42,8 +42,7 @@ class DeleteProjectCharterAPI(generics.DestroyAPIView):
 class EditProjectCharterAPI(generics.UpdateAPIView):
     name = 'edit-project-charter'
     serializer_class = ProjectCharterSerializer
-    permission_classes = [custom_perm.hasChangeProjectCharterPermission | 
-        custom_perm.hasChangeProjectPermission,]
+    permission_classes = [hasChangeProjectCharterPermission,]
     queryset = ProjectCharter.objects.all()
 
     def partial_update(self, request, *args, **kwargs):
@@ -62,8 +61,7 @@ class EditProjectCharterAPI(generics.UpdateAPIView):
 #   Get a project charter
 class ProjectCharterDetailsAPI(generics.RetrieveAPIView): 
     name = 'details-project-charter'
-    permission_classes = [custom_perm.hasViewProjectCharterPermission |
-        custom_perm.hasViewProjectPermission] 
+    permission_classes = [hasViewProjectCharterPermission,] 
     queryset = ProjectCharter.objects.all()
     serializer_class = ProjectCharterSerializer
 
@@ -74,8 +72,7 @@ class ProjectCharterDetailsAPI(generics.RetrieveAPIView):
 class BusinessCaseSWOTAPI(generics.GenericAPIView):
     name = 'add-business-case-swot'
     serializer_class = BusinessCaseSWOTSerializer
-    permission_classes = [custom_perm.hasAddProjectCharterPermission |
-        custom_perm.hasChangeProjectCharterPermission | custom_perm.hasChangeProjectPermission,]
+    permission_classes = [hasAddProjectCharterPermission,]
 
     def post(self, request, format='json'):
         serializer = self.get_serializer(data=request.data)
@@ -95,16 +92,14 @@ class BusinessCaseSWOTAPI(generics.GenericAPIView):
 class DeleteBusinessCaseSWOTAPI(generics.DestroyAPIView):
     name = 'delete-swot'
     serializer_class = BusinessCaseSWOTSerializer
-    permission_classes = [custom_perm.hasDeleteProjectCharterPermission | 
-        custom_perm.hasDeleteProjectPermission,]
+    permission_classes = [hasDeleteProjectCharterPermission,]
     queryset = BusinessCaseSWOT.objects.all()
 
 
 #   Get single swot instance
 class SWOTDetailsAPI(generics.RetrieveAPIView): 
     name = 'swot-details'
-    permission_classes = [custom_perm.hasViewProjectCharterPermission | 
-        custom_perm.hasViewProjectPermission,]
+    permission_classes = [hasViewProjectCharterPermission,]
     queryset = BusinessCaseSWOT.objects.all()
     serializer_class = BusinessCaseSWOTSerializer
 
@@ -114,8 +109,7 @@ class SWOTListOfProjectCharterAPI(generics.ListAPIView):
     name = 'swot-list-of-project-charter'
     queryset = BusinessCaseSWOT.objects.all()
     serializer_class = BusinessCaseSWOTSerializer
-    permission_classes = [custom_perm.hasViewProjectCharterPermission | 
-        custom_perm.hasViewProjectPermission,]
+    permission_classes = [hasViewProjectCharterPermission,]
 
     def list(self, request, project_charter_pk):
         queryset = self.get_queryset()
@@ -155,27 +149,34 @@ class AddProjectCharterPermissionsOfUserAPI(generics.GenericAPIView):
             permissions = request.data.get('permissions')
             # check if a request user is a project author 
             self.check_object_permissions(request, project)
-            if validated_project_charter_permissions(permissions):
-                if 'add_project_charter' in permissions:
-                        assign_perm('project_charter.add_project_charter', user, project)
+            # user is stakeholder of the project
+            if user in project.stakeholders.all():
+                if validated_project_charter_permissions(permissions):
+                    if 'add_project_charter' in permissions:
+                            assign_perm('project_charter.add_project_charter', user, project)
 
-                if 'change_project_charter' in permissions:
-                        assign_perm('project_charter.change_project_charter', user, project)
+                    if 'change_project_charter' in permissions:
+                            assign_perm('project_charter.change_project_charter', user, project)
 
-                if 'delete_project_charter' in permissions:
-                        assign_perm('project_charter.delete_project_charter', user, project)
+                    if 'delete_project_charter' in permissions:
+                            assign_perm('project_charter.delete_project_charter', user, project)
 
-                if 'view_project_charter' in permissions:
-                        assign_perm('project_charter.view_project_charter', user, project)
+                    if 'view_project_charter' in permissions:
+                            assign_perm('project_charter.view_project_charter', user, project)
+                    
+                    return Response(status=status.HTTP_201_CREATED)
                 
-                return Response(status=status.HTTP_201_CREATED)
+                return Response({
+                        'detail': 'Permissions is not defined correctly.'
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-            
             return Response({
-                    'detail': 'Permissions is not defined correctly.'
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+                        'detail': 'User must be a stakeholder of the project to assign permissions.'
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         except User.DoesNotExist:
             return Response(
                 {

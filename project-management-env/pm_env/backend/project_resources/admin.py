@@ -4,7 +4,7 @@ from .models import Resource
 
 class CustomResourceManager(admin.ModelAdmin):
     ordering = ('project',) 
-    list_display = ('project', 'name', 'description', 'cost', 'category')
+    list_display = ('project', 'name', 'description', 'cost', 'unit', 'category')
     search_fields = ('project', 'name', 'category')
     readonly_fields = ('id',)
 

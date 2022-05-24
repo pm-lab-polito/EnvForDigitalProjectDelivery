@@ -8,6 +8,7 @@ class Contract(models.Model):
     product = models.CharField(max_length=255)
     description = models.TextField(blank=True, max_length=1024)
     unit_price = models.FloatField(default=0)
+    unit = models.CharField(max_length=255, default='euro')
     assignment = models.IntegerField(default=0)
     supplier = models.CharField(max_length=255)
     date = models.DateField(default=date.today())

@@ -28,4 +28,4 @@ class ContractSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contract
-        fields = ['id', 'project', 'product', 'description', 'unit_price', 'assignment', 'supplier', 'date']
+        fields = ['id', 'project', 'product', 'description', 'unit_price', 'unit', 'assignment', 'supplier', 'date']

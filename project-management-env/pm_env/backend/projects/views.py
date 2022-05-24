@@ -3,8 +3,7 @@ from rest_framework import generics, status
 from .serializers import (ProjectCreateSerializer, ProjectViewSerializer, AddStakeholderSerializer, 
     RemoveStakeholderSerializer, GetStakeholdersSerializer, StakeholderProjectsSerializer, )
 from rest_framework.response import Response
-import custom_permissions.permissions as perm # import (IsProjectManagementOffice, hasChangeProjectPermission, 
-    # hasDeleteProjectPermission, hasViewProjectPermission, IsAuthorOfProject, IsOwnerOfUserAccount, RequestSenderIsRequestedUser)
+import custom_permissions.permissions as perm 
 from .models import Project
 from accounts.models import User
 from guardian.shortcuts import assign_perm, get_user_perms, remove_perm
@@ -12,17 +11,30 @@ from guardian.shortcuts import assign_perm, get_user_perms, remove_perm
 
 def assign_full_project_perm_to_stakeholder(project, author):
     user = User.objects.get(id=author.id)
+    assign_perm('project.add_project', user, project)
     assign_perm('project.change_project', user, project)
     assign_perm('project.delete_project', user, project)
     assign_perm('project.view_project', user, project)
+
     assign_perm('project_charter.add_project_charter', user, project)
     assign_perm('project_charter.change_project_charter', user, project)
     assign_perm('project_charter.delete_project_charter', user, project)
     assign_perm('project_charter.view_project_charter', user, project)
-    assign_perm('resources.add_project_resource', user, project)
-    assign_perm('resources.change_project_resource', user, project)
-    assign_perm('resources.delete_project_resource', user, project)
-    assign_perm('resources.view_project_resource', user, project)
+
+    assign_perm('project_resources.add_project_resource', user, project)
+    assign_perm('project_resources.change_project_resource', user, project)
+    assign_perm('project_resources.delete_project_resource', user, project)
+    assign_perm('project_resources.view_project_resource', user, project)
+
+    assign_perm('project_procurements.add_project_contract', user, project)
+    assign_perm('project_procurements.change_project_contract', user, project)
+    assign_perm('project_procurements.delete_project_contract', user, project)
+    assign_perm('project_procurements.view_project_contract', user, project)
+
+    assign_perm('project_budget.add_project_spendings', user, project)
+    assign_perm('project_budget.change_project_spendings', user, project)
+    assign_perm('project_budget.delete_project_spendings', user, project)
+    assign_perm('project_budget.view_project_spendings', user, project)
 
 
 #   Create a new project
@@ -97,7 +109,6 @@ class GetProjectsOfStakeholderAPI(generics.ListAPIView):
             user_id = self.kwargs['user_id']
             stakeholder = User.objects.get(id=user_id)
             queryset = self.model.objects.filter(stakeholders=stakeholder)
-
             return queryset
 
         except User.DoesNotExist:
@@ -109,7 +120,7 @@ class GetProjectsOfStakeholderAPI(generics.ListAPIView):
 class AddStakeholdersToProjectAPI(generics.UpdateAPIView):
     name = 'add-project-stakeholders'
     serializer_class = AddStakeholderSerializer
-    permission_classes = [perm.hasChangeProjectPermission,]
+    permission_classes = [perm.hasAddProjectPermission,]
     queryset = Project.objects.all()
     http_method_names = ['patch']
     lookup_url_kwarg = 'project_id'
@@ -177,7 +188,8 @@ class GetActualCostOfProjectAPI(generics.GenericAPIView):
 #### Permissions #####
 def validated_project_permissions(permissions):
     if permissions and len(permissions) > 0:
-        if ('change_project' in permissions or 
+        if ('add_project' in permissions or 
+            'change_project' in permissions or 
             'delete_project' in permissions or 
             'view_project' in permissions):
             return True
@@ -200,13 +212,8 @@ class AddProjectPermissionsOfUserAPI(generics.GenericAPIView):
             # user is stakeholder of the project
             if user in project.stakeholders.all():
                 if validated_project_permissions(permissions):
-                    # if 'add_project' in permissions:
-                    #         # assign_perm('project.add_project', user, project)
-                    #         content_type = ContentType.objects.get_for_model(Project)
-                    #         permission = Permission.objects.get(
-                    #                 codename="add_project", content_type=content_type
-                    #                     )
-                    #         user.user_permissions.add(permission)
+                    if 'add_project' in permissions:
+                            assign_perm('project.add_project', user, project)
 
                     if 'change_project' in permissions:
                             assign_perm('project.change_project', user, project)
@@ -300,9 +307,8 @@ class DeleteProjectPermissionsOfUserAPI(generics.GenericAPIView):
             # check if a request user is a project author 
             self.check_object_permissions(request, project)
             if validated_project_permissions(permissions):
-                # if 'add_project' in permissions:
-                #         # remove_perm('project.add_project', user, project)
-                #         user.user_permissions.remove('project.add_project')
+                if 'add_project' in permissions:
+                        remove_perm('project.add_project', user, project)
 
                 if 'change_project' in permissions:
                         remove_perm('project.change_project', user, project)

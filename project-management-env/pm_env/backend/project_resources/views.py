@@ -5,7 +5,8 @@ from .models import Resource
 from projects.models import Project
 from accounts.models import User
 from django.http import Http404
-from custom_permissions import permissions as perm
+from custom_permissions import permissions as cust_perm
+from .permissions import *
 from guardian.shortcuts import assign_perm, remove_perm
 
 
@@ -13,7 +14,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 class AddResourceAPI(generics.GenericAPIView):
     name = 'add-resource'
     serializer_class = ResourceSerializer
-    permission_classes = [perm.hasAddProjectResourcePermission]
+    permission_classes = [hasAddProjectResourcePermission,]
 
     def post(self, request, format='json'):
         serializer = self.get_serializer(data=request.data)
@@ -35,15 +36,13 @@ class RemoveResourceAPI(generics.DestroyAPIView):
     name = "remove-resource"
     serializer_class = ResourceSerializer
     queryset = Resource.objects.all()
-    permission_classes = [perm.hasDeleteProjectResourcePermission 
-        | perm.hasDeleteProjectPermission]
+    permission_classes = [hasDeleteProjectResourcePermission,]
 
 
 class UpdateResourceAPI(generics.UpdateAPIView):
     name = "update-resource"
     serializer_class = ResourceSerializer
-    permission_classes = [perm.hasChangeProjectResourcePermission 
-        | perm.hasChangeProjectPermission]
+    permission_classes = [hasChangeProjectResourcePermission,]
     queryset = Resource.objects.all()
     http_method_names = ['patch']
 
@@ -64,15 +63,14 @@ class GetResourceAPI(generics.RetrieveAPIView):
     name = "get-resource"
     serializer_class = ResourceSerializer
     queryset = Resource.objects.all()
-    permission_classes = [perm.hasViewProjectResourcePermission 
-        | perm.hasViewProjectPermission]
+    permission_classes = [hasViewProjectResourcePermission,]
 
 
 class GetResourceListOfProjectAPI(generics.ListAPIView):
     name = "get-resource-list-of-project"
     serializer_class = ResourceSerializer
     model = serializer_class.Meta.model
-    permission_classes = [perm.hasViewProjectResourceListPermission,]
+    permission_classes = [hasViewProjectResourcePermission,]
     lookup_url_kwarg = 'project_id'
 
     def get_queryset(self):
@@ -80,6 +78,7 @@ class GetResourceListOfProjectAPI(generics.ListAPIView):
             project_id = self.kwargs.get('project_id')
             project = Project.objects.get(id=project_id)
             queryset = self.model.objects.filter(project=project)
+            self.check_object_permissions(self.request, queryset[0])
             return queryset
 
         except Project.DoesNotExist:
@@ -101,7 +100,7 @@ def validated_project_charter_permissions(permissions):
         
 class AddProjectResourcePermissionsOfUserAPI(generics.GenericAPIView):
     name = 'add-project-resource-permissions'
-    permission_classes = [perm.IsAuthorOfProject,]
+    permission_classes = [cust_perm.IsAuthorOfProject,]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -112,27 +111,36 @@ class AddProjectResourcePermissionsOfUserAPI(generics.GenericAPIView):
             permissions = request.data.get('permissions')
             # check if a request user is a project author 
             self.check_object_permissions(request, project)
-            if validated_project_charter_permissions(permissions):
-                if 'add_project_resource' in permissions:
-                        assign_perm('resources.add_project_resource', user, project)
+            # user is stakeholder of the project
+            if user in project.stakeholders.all():
+                if validated_project_charter_permissions(permissions):
+                    if 'add_project_resource' in permissions:
+                            assign_perm('project_resources.add_project_resource', user, project)
 
-                if 'change_project_resource' in permissions:
-                        assign_perm('resources.change_project_resource', user, project)
+                    if 'change_project_resource' in permissions:
+                            assign_perm('project_resources.change_project_resource', user, project)
 
-                if 'delete_project_resource' in permissions:
-                        assign_perm('resources.delete_project_resource', user, project)
+                    if 'delete_project_resource' in permissions:
+                            assign_perm('project_resources.delete_project_resource', user, project)
 
-                if 'view_project_resource' in permissions:
-                        assign_perm('resources.view_project_resource', user, project)
+                    if 'view_project_resource' in permissions:
+                            assign_perm('project_resources.view_project_resource', user, project)
+                    
+                    return Response(status=status.HTTP_201_CREATED)
+
                 
-                return Response(status=status.HTTP_201_CREATED)
+                return Response({
+                        'detail': 'Permissions is not defined correctly.'
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-            
             return Response({
-                    'detail': 'Permissions is not defined correctly.'
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+                        'detail': 'User must be a stakeholder of the project to assign permissions.'
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
         except User.DoesNotExist:
             return Response(
                 {
@@ -151,7 +159,7 @@ class AddProjectResourcePermissionsOfUserAPI(generics.GenericAPIView):
 
 class DeleteProjectResourcePermissionsOfUserAPI(generics.GenericAPIView):
     name = 'delete-project-resource-permissions'
-    permission_classes = [perm.IsAuthorOfProject,]
+    permission_classes = [cust_perm.IsAuthorOfProject,]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -164,16 +172,16 @@ class DeleteProjectResourcePermissionsOfUserAPI(generics.GenericAPIView):
             self.check_object_permissions(request, project)
             if validated_project_charter_permissions(permissions):
                 if 'add_project_resource' in permissions:
-                        remove_perm('resources.add_project_resource', user, project)
+                        remove_perm('project_resources.add_project_resource', user, project)
 
                 if 'change_project_resource' in permissions:
-                        remove_perm('resources.change_project_resource', user, project)
+                        remove_perm('project_resources.change_project_resource', user, project)
 
                 if 'delete_project_resource' in permissions:
-                        remove_perm('resources.delete_project_resource', user, project)
+                        remove_perm('project_resources.delete_project_resource', user, project)
 
                 if 'view_project_resource' in permissions:
-                        remove_perm('resources.view_project_resource', user, project)
+                        remove_perm('project_resources.view_project_resource', user, project)
                 
                 return Response(status=status.HTTP_204_NO_CONTENT)
 
