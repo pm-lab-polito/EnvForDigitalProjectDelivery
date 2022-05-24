@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordRequestForm
 
-import routers.projects
+from routers import projects
 from datatypes.models import *
 from dependencies import *
 from security.schemas import Token
@@ -9,7 +9,7 @@ from security.utils import *
 
 app = FastAPI()
 
-app.include_router(routers.projects.router)
+app.include_router(projects.router)
 
 
 @app.on_event("startup")
@@ -58,10 +58,9 @@ def register(user: User, session: Session = Depends(get_session)):
     if crud.get_user(session, user.user_name) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User could not be registered")
     user.password = get_password_hash(user.password)
+    print(crud.get_users_count(session))
     if crud.get_users_count(session) == 0:
-        user.system_permissions = [
-            SystemPermission(permission=permission) for permission in SysPermissions
-        ]
+        user.system_permissions = [SystemPermission(permission=permission) for permission in SysPermissions]
     session.add(user)
     session.commit()
     session.refresh(user)

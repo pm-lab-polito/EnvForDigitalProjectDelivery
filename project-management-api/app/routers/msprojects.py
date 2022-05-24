@@ -2,14 +2,9 @@
 Module for the methods regarding ms projects
 """
 
-import copy
-import operator
-from functools import reduce
-
 import jpype
-import mpxj
-import jsonpatch
 import jsonpath_ng.ext
+import mpxj
 from fastapi import APIRouter, File, UploadFile
 
 from datatypes.models import *
