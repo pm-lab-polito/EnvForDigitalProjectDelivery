@@ -5,7 +5,8 @@ from .views import (ProjectBudgetAPI, DeleteProjectBudgetAPI, DeleteTotalProject
                         DeleteResourceSpendingAPI, GetResourceSpendingsByBudgetAPI, AddContractSpendingAPI, 
                         UpdateContractSpendingAPI, GetContractSpendingDetailsAPI, GetContractSpendingsByBudgetAPI,
                         DeleteContractSpendingAPI, GetActualCostOfProjectByBudgetAPI,
-                        AddProjectBudgetPermissionsOfUserAPI, DeleteProjectBudgetPermissionsOfUserAPI)
+                        AddProjectBudgetPermissionsOfUserAPI, DeleteProjectBudgetPermissionsOfUserAPI,
+                        ForecastFutureSpendingsAPI)
 
 
 urlpatterns = [
@@ -39,6 +40,10 @@ urlpatterns = [
         name='get-contract-spendings-by-budget'),
     path('contract-spendings/<int:pk>/delete/', DeleteContractSpendingAPI.as_view(), 
         name='delete-contract-spending'),
+
+    # Forecast spendings
+    path('forecast-future-spendings/', ForecastFutureSpendingsAPI.as_view(), 
+        name='forecast-future-spendings'),
 
     
     ##### Permissions 

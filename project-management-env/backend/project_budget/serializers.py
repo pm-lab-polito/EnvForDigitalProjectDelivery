@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import ProjectBudget, ResourceSpending, ContractSpending
+from .eva import EVA
 
 
 class CreateUpdateListSerializer(serializers.ListSerializer):
@@ -122,3 +123,49 @@ class ContractSpendingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContractSpending
         fields = ('id', 'project', 'contract', 'budget', 'amount', 'description', 'date', 'approval_status')
+
+
+
+class ForecastSerializer(serializers.Serializer):
+    total_scheduled_tasks = serializers.IntegerField()
+    task_duration = serializers.IntegerField()
+    employee_cost_day = serializers.FloatField()
+    actual_activity = serializers.ListField()
+    # planned_completion_date = serializers.DateField()
+
+    def create(self, data):
+        eva = EVA(
+            total_scheduled_tasks = data.get('total_scheduled_tasks'),
+            task_duration = data.get('task_duration'),
+            employee_cost_day = data.get('employee_cost_day'),
+            actual_activity = data.get('actual_activity'),
+            # planned_completion_date = data.get('planned_completion_date')            
+        )
+
+        earned_value_analysis = {
+                'planned_work_percentage': eva.planned_work_percentage(), 
+                'budget_work': eva.budget_work(), 
+                'actual_work_percentage': eva.actual_work_percentage(), 
+                'budgeted_cost_of_work_scheduled': eva.budgeted_cost_of_work_scheduled(),
+                'actual_cost_of_work_performed': eva.actual_cost_of_work_performed(),
+                'budgeted_cost_of_work_performed': eva.budgeted_cost_of_work_performed(),
+                'earned_value': eva.earned_value(),
+                'schedule_performance_index': eva.schedule_performance_index(),
+                'schedule_variance': eva.schedule_variance(),
+                'schedule_variance_percentage': eva.schedule_variance_percentage(),
+                'cost_variance': eva.cost_variance(),
+                'cost_performance_index': eva.cost_performance_index(),
+                'cost_variance_percentage': eva.cost_variance_percentage(),
+                'estimate_to_complete': eva.estimate_to_complete(),
+                'estimate_at_complete': eva.estimate_at_complete(),
+                'cost_variance_at_completion': eva.cost_variance_at_completion(),
+                'time_variance': eva.time_variance(),
+                'time_variance_percentage': eva.time_variance_percentage(),
+                'earned_schedule': eva.earned_schedule(),
+                'time_performance_index': eva.time_performance_index(),
+                'estimated_accomplishment_rate': eva.estimated_accomplishment_rate(),
+                'time_estimate_at_completion': eva.time_estimate_at_completion(),
+                'time_variance_at_completion': eva.time_variance_at_completion()
+            }
+
+        return earned_value_analysis

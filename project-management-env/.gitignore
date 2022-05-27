@@ -152,4 +152,4 @@ dmypy.json
 .pyre/
 
 # rest api test
-pm_env/backend/API_TEST/
+backend/API_TEST/

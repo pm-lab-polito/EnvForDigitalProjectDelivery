@@ -1,6 +1,6 @@
 from rest_framework import generics, status
 from project_budget.models import (ProjectBudget, ResourceSpending, ContractSpending)
-from .serializers import (ProjectBudgetSerializer, ResourceSpendingSerializer, ContractSpendingSerializer)
+from .serializers import (ProjectBudgetSerializer, ResourceSpendingSerializer, ContractSpendingSerializer, ForecastSerializer)
 from rest_framework.response import Response
 from custom_permissions import permissions as cust_perm
 from project_charter import permissions as charter_perm
@@ -263,6 +263,18 @@ class DeleteContractSpendingAPI(generics.DestroyAPIView):
     serializer_class = ContractSpendingSerializer
     queryset = ContractSpending.objects.all()
     permission_classes = [hasDeleteProjectBudgetSpendingsPermission,]
+
+
+class ForecastFutureSpendingsAPI(generics.GenericAPIView):
+    name = 'forecast-future-spending'
+    serializer_class = ForecastSerializer
+    permission_classes = [hasViewProjectBudgetSpendingsPermission,]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        eva = serializer.save()
+        return Response(eva)
 
 
 
