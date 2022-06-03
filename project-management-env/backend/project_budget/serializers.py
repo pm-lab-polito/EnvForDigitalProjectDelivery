@@ -40,7 +40,7 @@ class ResourceSpendingSerializer(serializers.ModelSerializer):
         amount = validated_data.get('assignment') * validated_data.get('resource').cost
         date = validated_data.get('date')
         if date.year != validated_data.get('budget').year:
-            raise serializers.ValidationError('Spending date must be in budget year.')
+            raise serializers.ValidationError({"detail": "Spending date must be in budget year."})
 
         instance = ResourceSpending.objects.create(
             project = validated_data.get('project'),
@@ -65,6 +65,9 @@ class ResourceSpendingSerializer(serializers.ModelSerializer):
         instance.date = validated_data.get("date", instance.date)
         instance.amount = instance.assignment * instance.resource.cost
         
+        if instance.date.year != instance.budget.year:
+            raise serializers.ValidationError({"detail": "Spending date must be in budget year."})
+
         # check if actual cost (including last updated spending) is greater than current budget, deny last update    
         if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
             raise serializers.ValidationError('You are over budget.')
@@ -86,7 +89,7 @@ class ContractSpendingSerializer(serializers.ModelSerializer):
         amount = validated_data.get('contract').total_cost()
         date = validated_data.get('date')
         if date.year != validated_data.get('budget').year:
-            raise serializers.ValidationError('Spending date must be in budget year.')
+            raise serializers.ValidationError({"detail": "Spending date must be in budget year."})
 
         instance = ContractSpending.objects.create(
             project = validated_data.get('project'),
@@ -110,6 +113,9 @@ class ContractSpendingSerializer(serializers.ModelSerializer):
         instance.date = validated_data.get("date", instance.date)
         instance.amount = instance.contract.total_cost()
 
+        if instance.date.year != instance.budget.year:
+            raise serializers.ValidationError({"detail": "Spending date must be in budget year."})
+
         # check if actual cost (including last updated spending) is greater than current budget, deny last update    
         if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
             raise serializers.ValidationError('You are over budget.')
@@ -126,20 +132,42 @@ class ContractSpendingSerializer(serializers.ModelSerializer):
 
 
 
-class ForecastSerializer(serializers.Serializer):
+class ForecastBalanceSerializer(serializers.Serializer):
     total_scheduled_tasks = serializers.IntegerField()
     task_duration = serializers.IntegerField()
     employee_cost_day = serializers.FloatField()
     actual_activity = serializers.ListField()
-    # planned_completion_date = serializers.DateField()
 
     def create(self, data):
         eva = EVA(
             total_scheduled_tasks = data.get('total_scheduled_tasks'),
             task_duration = data.get('task_duration'),
             employee_cost_day = data.get('employee_cost_day'),
-            actual_activity = data.get('actual_activity'),
-            # planned_completion_date = data.get('planned_completion_date')            
+            actual_activity = data.get('actual_activity')        
+        )
+
+        forecast_balance = {
+                'estimate_to_complete': eva.estimate_to_complete(),
+                'estimate_at_complete': eva.estimate_at_complete()
+            }
+
+        return forecast_balance
+
+
+
+
+class ForecastSerializer(serializers.Serializer):
+    total_scheduled_tasks = serializers.IntegerField()
+    task_duration = serializers.IntegerField()
+    employee_cost_day = serializers.FloatField()
+    actual_activity = serializers.ListField()
+
+    def create(self, data):
+        eva = EVA(
+            total_scheduled_tasks = data.get('total_scheduled_tasks'),
+            task_duration = data.get('task_duration'),
+            employee_cost_day = data.get('employee_cost_day'),
+            actual_activity = data.get('actual_activity')        
         )
 
         earned_value_analysis = {

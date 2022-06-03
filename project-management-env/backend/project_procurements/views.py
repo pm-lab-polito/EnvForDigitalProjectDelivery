@@ -24,7 +24,7 @@ class AddContractAPI(generics.CreateAPIView):
         return Response(
             {
                 'detail': 'Contract added successfully.',
-                'resource': ContractSerializer(contract, 
+                'contract': ContractSerializer(contract, 
                                         context=self.get_serializer_context()).data,
             },
             status=status.HTTP_201_CREATED

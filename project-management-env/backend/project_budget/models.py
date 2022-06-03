@@ -27,6 +27,8 @@ class ProjectBudget(models.Model):
             contract_spendings = 0.0 
         actual_cost= resource_spendings + contract_spendings
         return {
+            "year": self.year,
+            "budget": self.budget,
             "actual_cost": actual_cost,
             "resource_spendings": resource_spendings,
             "contract_spendings": contract_spendings

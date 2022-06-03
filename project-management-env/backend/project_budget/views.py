@@ -1,6 +1,6 @@
 from rest_framework import generics, status
 from project_budget.models import (ProjectBudget, ResourceSpending, ContractSpending)
-from .serializers import (ProjectBudgetSerializer, ResourceSpendingSerializer, ContractSpendingSerializer, ForecastSerializer)
+from .serializers import *
 from rest_framework.response import Response
 from custom_permissions import permissions as cust_perm
 from project_charter import permissions as charter_perm
@@ -48,7 +48,7 @@ class DeleteProjectBudgetAPI(generics.DestroyAPIView):
 
 #   Delete all budget of a project charter
 class DeleteTotalProjectBudgetAPI(generics.GenericAPIView):
-    name = 'delete-project-budget'
+    name = 'delete-total-project-budget'
     serializer_class = ProjectBudgetSerializer
     permission_classes = [charter_perm.hasDeleteProjectCharterPermission,]
     
@@ -126,7 +126,7 @@ class EditProjectBudgetAPI(generics.UpdateAPIView):
             {
                 "detail": "Project budget updated successfully"
             },  
-            status=status.HTTP_204_NO_CONTENT
+            status=status.HTTP_200_OK
         )
 
 
@@ -265,16 +265,48 @@ class DeleteContractSpendingAPI(generics.DestroyAPIView):
     permission_classes = [hasDeleteProjectBudgetSpendingsPermission,]
 
 
+############ Forecast Spendings ############
+
+class ForecastBalanceAPI(generics.GenericAPIView):
+    name = 'get-forecast-balance'
+    serializer_class = ForecastBalanceSerializer
+    permission_classes = [hasViewProjectBudgetSpendingsPermission,]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            budget_id = self.kwargs.get('pk')
+            budget = ProjectBudget.objects.get(pk=budget_id)
+            project = budget.project_charter
+            self.check_object_permissions(self.request, project)
+
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            balance = serializer.save()
+            return Response(balance)
+        
+        except ProjectBudget.DoesNotExist:
+            raise Http404
+
+
 class ForecastFutureSpendingsAPI(generics.GenericAPIView):
-    name = 'forecast-future-spending'
+    name = 'forecast-future-spendings'
     serializer_class = ForecastSerializer
     permission_classes = [hasViewProjectBudgetSpendingsPermission,]
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        eva = serializer.save()
-        return Response(eva)
+        try:
+            budget_id = self.kwargs.get('pk')
+            budget = ProjectBudget.objects.get(pk=budget_id)
+            project = budget.project_charter
+            self.check_object_permissions(self.request, project)
+
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            eva = serializer.save()
+            return Response(eva)
+        
+        except ProjectBudget.DoesNotExist:
+            raise Http404
 
 
 

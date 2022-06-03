@@ -54,7 +54,7 @@ class EditProjectCharterAPI(generics.UpdateAPIView):
             {
                 "detail": "Project charter updated successfully"
             },  
-            status=status.HTTP_204_NO_CONTENT
+            status=status.HTTP_200_OK
         )
 
 
@@ -88,7 +88,7 @@ class BusinessCaseSWOTAPI(generics.GenericAPIView):
         )
 
 
-#   Delete an existing project charter
+#   Delete swot
 class DeleteBusinessCaseSWOTAPI(generics.DestroyAPIView):
     name = 'delete-swot'
     serializer_class = BusinessCaseSWOTSerializer

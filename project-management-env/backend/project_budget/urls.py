@@ -6,7 +6,7 @@ from .views import (ProjectBudgetAPI, DeleteProjectBudgetAPI, DeleteTotalProject
                         UpdateContractSpendingAPI, GetContractSpendingDetailsAPI, GetContractSpendingsByBudgetAPI,
                         DeleteContractSpendingAPI, GetActualCostOfProjectByBudgetAPI,
                         AddProjectBudgetPermissionsOfUserAPI, DeleteProjectBudgetPermissionsOfUserAPI,
-                        ForecastFutureSpendingsAPI)
+                        ForecastFutureSpendingsAPI, ForecastBalanceAPI)
 
 
 urlpatterns = [
@@ -24,7 +24,8 @@ urlpatterns = [
     path('resource-spendings/add/', AddResourceSpendingAPI.as_view(), name='add-resource-spending'),
     path('resource-spendings/<int:pk>/update/', UpdateResourceSpendingAPI.as_view(), 
         name='update-resource-spending'),
-    path('resource-spendings/<int:pk>/get/', GetResourceSpendingDetailsAPI.as_view(), name='get-resource-spending'),
+    path('resource-spendings/<int:pk>/get/', GetResourceSpendingDetailsAPI.as_view(), 
+        name='get-resource-spending-details'),
     path('resource-spendings/<int:budget_id>/get/list/', GetResourceSpendingsByBudgetAPI.as_view(), 
         name='get-resource-spendings-by-budget'),
     path('resource-spendings/<int:pk>/delete/', DeleteResourceSpendingAPI.as_view(), 
@@ -42,7 +43,9 @@ urlpatterns = [
         name='delete-contract-spending'),
 
     # Forecast spendings
-    path('forecast-future-spendings/', ForecastFutureSpendingsAPI.as_view(), 
+    path('<int:pk>/forecast-balance/', ForecastBalanceAPI.as_view(), 
+        name='get-forecast-balance'),
+    path('<int:pk>/forecast-future-spendings/', ForecastFutureSpendingsAPI.as_view(), 
         name='forecast-future-spendings'),
 
     

@@ -75,7 +75,7 @@ class EditProjectAPI(generics.UpdateAPIView):
             {
                 "detail": "Project name updated successfully"
             },  
-            status=status.HTTP_204_NO_CONTENT
+            status=status.HTTP_200_OK
         )
 
 
@@ -134,7 +134,7 @@ class AddStakeholdersToProjectAPI(generics.UpdateAPIView):
             {
                 "detail": "Stakeholders added successfully"
             },  
-            status=status.HTTP_204_NO_CONTENT
+            status=status.HTTP_200_OK
         )
 
 
@@ -156,7 +156,7 @@ class RemoveStakeholdersFromProjectAPI(generics.UpdateAPIView):
             {
                 "detail": "Stakeholders removed successfully"
             },  
-            status=status.HTTP_204_NO_CONTENT
+            status=status.HTTP_200_OK
         )
 
 

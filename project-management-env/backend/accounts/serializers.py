@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     def validate_password(self, password):
         if password != self.initial_data.get('confirm_password'):
-            raise serializers.ValidationError("Passwords doesn't match")
+            raise serializers.ValidationError({"detail": "Passwords doesn't match"})
         validate_password(password, self.instance)
         return password
         
@@ -65,7 +65,7 @@ class LoginSerializer(serializers.Serializer):
                 user.save(update_fields=['last_login'])
                 return user
 
-        message = {'email': 'The email or password is incorrect'}
+        message = {'detail': 'The email or password is incorrect'}
         raise serializers.ValidationError(message)
 
     def email_to_lower(self, email):
