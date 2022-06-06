@@ -12,7 +12,7 @@ urlpatterns = [
     path('delete/<int:pk>/', DeleteProjectAPI.as_view(), name='delete-project'),
     path('edit/<int:pk>/', EditProjectAPI.as_view(), name='edit-project-name'),
     path('details/<int:pk>/', ProjectDetailsAPI.as_view(), name='project-details'),
-    path('myprojects/<int:user_id>/', GetProjectsOfStakeholderAPI.as_view(), 
+    path('myprojects/', GetProjectsOfStakeholderAPI.as_view(), 
         name='get-projects-of-stakeholder'),
     path('stakeholders/add/<int:project_id>/', AddStakeholdersToProjectAPI.as_view(), 
         name='add-project-stakeholders'),

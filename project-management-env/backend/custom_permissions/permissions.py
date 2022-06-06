@@ -27,15 +27,6 @@ class IsOwnerOrProjectManagementOffice(permissions.BasePermission):
 
 
 
-class RequestSenderIsRequestedUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        try:
-            user_id = request.resolver_match.kwargs.get('user_id')
-            user = User.objects.get(id=user_id)
-            return request.user == user
-            
-        except User.DoesNotExist:
-            return False
 
 class IsOwnerOfUserAccount(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):

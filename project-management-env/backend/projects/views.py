@@ -1,7 +1,6 @@
 from django.http import Http404
 from rest_framework import generics, status
-from .serializers import (ProjectCreateSerializer, ProjectViewSerializer, AddStakeholderSerializer, 
-    RemoveStakeholderSerializer, GetStakeholdersSerializer, StakeholderProjectsSerializer, )
+from .serializers import *
 from rest_framework.response import Response
 import custom_permissions.permissions as perm 
 from .models import Project
@@ -98,21 +97,15 @@ class ProjectDetailsAPI(generics.RetrieveAPIView):
 #   Get projects of stakeholder 
 class GetProjectsOfStakeholderAPI(generics.ListAPIView): 
     name = 'get-projects-of-stakeholder'
-    permission_classes = [perm.RequestSenderIsRequestedUser,]
+    permission_classes = []
     queryset = Project.objects.all()
     serializer_class = StakeholderProjectsSerializer
     model = serializer_class.Meta.model
-    lookup_url_kwarg = 'user_id'
 
     def get_queryset(self):
-        try:
-            user_id = self.kwargs['user_id']
-            stakeholder = User.objects.get(id=user_id)
-            queryset = self.model.objects.filter(stakeholders=stakeholder)
-            return queryset
-
-        except User.DoesNotExist:
-            raise Http404
+        stakeholder = self.request.user
+        queryset = self.model.objects.filter(stakeholders=stakeholder)
+        return queryset
 
 
 

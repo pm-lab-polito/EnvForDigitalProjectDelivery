@@ -25,10 +25,9 @@ class AccountsTest(APITestCase):
             "confirm_password": "ps123456"
         }
 
-    def activate_user(self, user, role=None):
+    def define_user_role(self, user, role=None):
         db_user = User.objects.get(pk=user.data['user']['id'])
         db_user.user_role = role
-        db_user.is_active = True
         db_user.save()
 
     def post_user_registration(self, user):
@@ -44,12 +43,11 @@ class AccountsTest(APITestCase):
         user = self.generate_ps_user_data()
         response = self.post_user_registration(user)
         assert response.status_code == status.HTTP_201_CREATED
-        assert User.objects.count() == 1
-        saved_user = User.objects.get()
+        saved_user = User.objects.get(email=user['email'])
         assert saved_user.email == user['email']
         assert saved_user.first_name == user['first_name']
         assert saved_user.last_name == user['last_name']
-        assert saved_user.is_active == False
+        assert saved_user.is_active == True
 
 
     def test_existing_user_email(self):
@@ -75,7 +73,6 @@ class AccountsTest(APITestCase):
         """
         user = self.generate_ps_user_data()
         reg_response = self.post_user_registration(user)
-        self.activate_user(reg_response, 'PS')
         response = self.post_user_login(user)
         assert response.status_code == status.HTTP_200_OK
         tokens = AuthToken.objects.all()
@@ -108,7 +105,7 @@ class AccountsTest(APITestCase):
         """
         user_pmo = self.generate_pmo_user_data()
         reg = self.post_user_registration(user_pmo)
-        self.activate_user(reg, 'PMO')
+        self.define_user_role(reg, 'PMO')
         login_response = self.post_user_login(user_pmo)
 
         unknown_user = self.generate_ps_user_data()
@@ -136,7 +133,6 @@ class AccountsTest(APITestCase):
         # Authorized user can get his data
         ps_user = self.generate_ps_user_data()
         reg_response1 = self.post_user_registration(ps_user)
-        self.activate_user(reg_response1, 'PS')
         login_response1 = self.post_user_login(ps_user)
         response1 = self.get_user_details(reg_response1.data['user']['id'], 
                 login_response1.data['auth_token'])
@@ -145,7 +141,7 @@ class AccountsTest(APITestCase):
         # PMO account can get data of another user
         pmo_user = self.generate_pmo_user_data()
         reg_response2 = self.post_user_registration(pmo_user)
-        self.activate_user(reg_response2, 'PMO')
+        self.define_user_role(reg_response2, 'PMO')
         login_response2 = self.post_user_login(pmo_user)
         response2 = self.get_user_details(reg_response1.data['user']['id'], 
                 login_response2.data['auth_token'])
@@ -160,14 +156,12 @@ class AccountsTest(APITestCase):
         # UnAuthorized user can not get data
         pmo_user = self.generate_pmo_user_data()
         reg_response1 = self.post_user_registration(pmo_user)
-        self.activate_user(reg_response1, 'PMO')
         response1 = self.get_user_details(reg_response1.data['user']['id'], 'withoutAUTH')
         assert response1.status_code == status.HTTP_401_UNAUTHORIZED
 
         # If not account owner can not get data
         ps_user = self.generate_ps_user_data()
         reg_response2 = self.post_user_registration(ps_user)
-        self.activate_user(reg_response2, 'PS')
         login_response = self.post_user_login(ps_user)
         response2 = self.get_user_details(reg_response1.data['user']['id'], 
                 login_response.data['auth_token'])
@@ -188,11 +182,11 @@ class AccountsTest(APITestCase):
         # UnAuthorized user can not retrieve data
         ps_user = self.generate_ps_user_data()
         reg_response = self.post_user_registration(ps_user)
-        self.activate_user(reg_response, 'PS')
         response = self.get_user_list('withoutAUTH')
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
         # not pmo_user
+        self.define_user_role(reg_response, 'PS')
         login_response = self.post_user_login(ps_user)
         response = self.get_user_list(login_response.data['auth_token'])
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -200,7 +194,7 @@ class AccountsTest(APITestCase):
         # Authorized PMO user can retrieve data
         pmo_user = self.generate_pmo_user_data()
         reg_response = self.post_user_registration(pmo_user)
-        self.activate_user(reg_response, 'PMO')
+        self.define_user_role(reg_response, 'PMO')
         login_response = self.post_user_login(pmo_user)
         response = self.get_user_list(login_response.data['auth_token'])
         assert response.status_code == status.HTTP_200_OK
@@ -214,7 +208,7 @@ class AccountsTest(APITestCase):
         # UnAuthorized user can not deactivate/activate a user
         ps_user = self.generate_ps_user_data()
         reg_response = self.post_user_registration(ps_user)
-        self.activate_user(reg_response, 'PS')
+        self.define_user_role(reg_response, 'PS')
         user_id = reg_response.data['user']['id']
         url_activate = reverse(views.ActivateUserAPI.name, None, {user_id})
         url_deactivate = reverse(views.DeactivateUserAPI.name, None, {user_id})
@@ -234,7 +228,7 @@ class AccountsTest(APITestCase):
         # Authorized PMO user can deactivate/activate a user 
         pmo_user = self.generate_pmo_user_data()
         reg_response = self.post_user_registration(pmo_user)
-        self.activate_user(reg_response, 'PMO')
+        self.define_user_role(reg_response, 'PMO')
         login_response = self.post_user_login(pmo_user)
         token = f'Token {login_response.data["auth_token"]}'
         saved_user = User.objects.get(id=user_id)
@@ -242,12 +236,12 @@ class AccountsTest(APITestCase):
 
         response1 = self.client.patch(url_deactivate, HTTP_AUTHORIZATION = token, format='json')
         deactivated_user = User.objects.get(id=user_id)
-        assert response1.status_code == status.HTTP_204_NO_CONTENT
+        assert response1.status_code == status.HTTP_200_OK
         assert deactivated_user.is_active== False
 
         response2 = self.client.patch(url_activate, HTTP_AUTHORIZATION = token, format='json')
         activated_user = User.objects.get(id=user_id)
-        assert response2.status_code == status.HTTP_204_NO_CONTENT
+        assert response2.status_code == status.HTTP_200_OK
         assert activated_user.is_active == True
 
 
@@ -258,7 +252,6 @@ class AccountsTest(APITestCase):
         # logout one user
         user = self.generate_ps_user_data()
         reg_response = self.post_user_registration(user)
-        self.activate_user(reg_response, 'PS')
         login = self.post_user_login(user)
         auth_tokens = AuthToken.objects.all()
         assert auth_tokens.count() == 1
