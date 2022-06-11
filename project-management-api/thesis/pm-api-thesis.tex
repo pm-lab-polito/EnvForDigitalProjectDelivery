@@ -1,0 +1,1250 @@
+\documentclass[12pt]{report}
+\usepackage[textwidth=15cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[pagestyles]{titlesec}
+\titleformat{\chapter}[display]{\normalfont\bfseries}{}{0pt}{\Huge}
+\newpagestyle{mystyle}
+{\sethead[\thepage][][\chaptertitle]{}{}{\thepage}}
+\pagestyle{mystyle}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{commentcolor}{HTML}{8C8C8C}
+
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
+
+\newcommand\YAMLcolonstyle{\color{red}\mdseries}
+\newcommand\YAMLkeystyle{\color{black}\bfseries}
+\newcommand\YAMLvaluestyle{\color{blue}\mdseries}
+
+\lstdefinestyle{pythoncode}{
+    backgroundcolor=\color{background},   
+    commentstyle=\color{commentcolor},
+    keywordstyle=\color{blue},
+    numberstyle=\fontspec{JetBrains Mono Thin}\scriptsize\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\fontspec{JetBrains Mono Thin}\scriptsize,
+    breakatwhitespace=false,         
+    columns=fullflexible,
+    breaklines=true,                 
+    captionpos=t,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=pythoncode}
+
+\lstdefinelanguage{yaml}{
+    backgroundcolor=\color{background},  
+    keywords={true,false,null,y,n},
+    keywordstyle=\color{darkgray}\bfseries,
+    basicstyle=\fontspec{JetBrains Mono Thin}\scriptsize,                          
+    numberstyle=\fontspec{JetBrains Mono Thin}\scriptsize\color{codegray},
+    sensitive=false,
+    columns=fullflexible,
+    comment=[l]{\#},
+    morecomment=[s]{/*}{*/},
+    commentstyle=\color{codegreen}\ttfamily,
+    stringstyle=\YAMLvaluestyle\ttfamily,
+    moredelim=[l][\color{orange}]{\&},
+    moredelim=[l][\color{magenta}]{*},
+    moredelim=**[il][\YAMLcolonstyle{:}\YAMLvaluestyle]{:},   % switch to value style at :
+    morestring=[b]',
+    morestring=[b]",
+    literate =    {---}{{\ProcessThreeDashes}}3
+    {>}{{\textcolor{red}\textgreater}}1     
+    {|}{{\textcolor{red}\textbar}}1 
+    {\ -\ }{{\mdseries\ -\ }}3,
+}
+
+\lstdefinelanguage{json}{
+    basicstyle=\fontspec{JetBrains Mono Thin}\scriptsize,,
+    numbers=left,
+    numberstyle=\fontspec{JetBrains Mono Thin}\scriptsize\color{codegray},
+    stringstyle=\YAMLvaluestyle\ttfamily,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    columns=fullflexible,
+    backgroundcolor=\color{background},
+    literate=
+     *{:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+
+\title{\vspace{-2cm}\textbf{Development of REST API to support the Project Management object and process model}}
+\author{
+\begin{tabular}{ l @{\hspace{4cm}} l }
+\textbf{Supervisor:} & \textbf{Candidate:} \\
+Prof. Paolo Eugenio Demagistris & Simone Ranno
+\end{tabular} \\ \\
+\textbf{In collaboration with:} PM-Lab of PoliTo
+}
+\date{Academic Year 2021/2022}
+\begin{document}
+\begin{center}
+{\large \textbf{POLITECNICO DI TORINO}}\\[0.75\baselineskip]
+{\large Master’s Degree in Engineering and Management}
+\end{center}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=10cm]{polito_logo_2021_blu.jpg}
+\end{figure}
+\begin{center}
+{\large Master's Degree Thesis}
+\end{center}
+{\let\newpage\relax\maketitle}
+\section*{Abstract}
+This thesis has been carried out with the collaboration of the Project Management Laboratory of Politecnico di Torino.\newline\newline
+Project Management processes are already well defined, and usually take a semi-standardized path in well-established environments.
+On the other hand, only in recent times companies began to introduce the use of digital tools in support to the project management process, making this new branch still wild and open to enhancement.
+Many tools are being developed for the new agile methodologies, but they lack the classic project management document-oriented approach.
+The purpose of this thesis is to demonstrate that the technology is ready for the next step towards the digitalization of Project Management through the development of an open-source platform to enable the digital project delivery.
+The software will be composed by three components, the front-end, the back-end and the API, where only the latter will be the one researched in this paper.
+\newpage
+\tableofcontents
+
+\chapter{Introduction}
+
+\section{Where the need comes from}
+The Project Management Laboratory of the Polythecnic University of Turin, that researches cutting-edge processes and methodologies of Project Management, has found that the current project management industry stands behind in terms of digitalization. Given this findings, the PM Lab has issued a research in order to demonstrate that the technology is mature enough to guide the Project Management towards the next step.
+
+\section{What is needed}
+For the purpose of creating a working platform for supporting the Project Management objects and processes, it has been individuated the need for a three component project:
+\begin{description}
+   \item[Front-end] the part visible to the user.
+   \item[Back-end] the component responsible for delivering the front-end's User Interface to the user, managing authentication and authorization.
+   \item[API] that serves both front-end and back-end, delivering a suite of interface-less resources and services, including authorization and authentication.
+\end{description}
+
+\section{What this thesis is focusing on}
+The focus of this thesis will be demonstrating the technology readiness for the development of the API required by the project.
+
+
+
+\chapter{Definitions}
+
+\section{What is an API}
+\textbf{API} stands for \textbf{A}pplication \textbf{P}rogramming \textbf{I}nterface
+\newline
+But what does this mean?
+API means that the system allows a way to access some informatic service, through a well-defined suite of protocols and methods, which require to communicate with a predefined set of rules.
+\newline
+The purpose of an API is to allow multiple different systems to communicate with the desired resources, without redefining an ad-hoc system for every informatic system. Examples of different systems are websites, mobile applications, automated services and more.
+
+\section{What is an end-point}
+In the API environment, it is defined as an endpoint a specific string that the server recognizes without ambiguity and that corresponds to a specific action or resource.
+Example of an endpoint:
+example.com/documents is an endpoint 
+If the endpoint is interrogated with GET method, it will return a collection of documents, while if interrogated with POST it could allow the insertion of a new document
+
+\section{The project management object and process model}
+Project management is defined by documents and processes, which produce data in a structured or unstructured way. This necessity for documents has always been satisfied by paper and ink, but we can upgrade to a digital document management, allowing a fine-grained control over authentication and authorization.
+
+\section{How a API satisfies the Project Management needs}
+Every project defines its own processes and documents and needs a way to store them, each associated with its own authorizations for the users.
+A API can satisfy those needs, providing a standardized way of accessing resources and limiting them according to custom rules defined by the project owner.
+In this way other platforms/services/websites/applications can access and edit in the same way the resources.
+
+\section{The classic approach versus the modern approach}
+Ten years ago, the best choices for web development were Apache web server, that executed PHP code, Apache Tomcat for Java and ASP.NET for C\# and Visual Basic.
+Nowadays new tools are readily available, offering a much simple and fast deployment with good performances.
+To name a few, Python has Django, Flask and FastApi; Kotlin has KTor; Golang has Gin; Rust has Rocket Framework.
+
+\section{What is a Framework}
+In computer science, it is defined as a framework a suite of code that satisfies a need by calling some user-written code. The project will make use of frameworks designed for the delivery of web services.
+
+\section{Data interchange formats}
+In order to transfer meaningful data across the web, many interchange formats have been developed. For the purpose of this thesis, only two are being considered.\newline
+JSON: (JavaScript Object Notation) one of the most popular formats, has found wide adoption and many tools are defined around it, making it compatible with nearly every system.\newline
+YAML: (Yet Another Markup Language) another popular format, it has a structure similar to JSON but is more human-readable, making it suitable for direct user input.
+
+\chapter{Case study}
+
+\section{Requirements}
+The platform was required to have the following features and constraints:
+
+\subsection{Expose a REST API to add, retrieve, edit and delete documents}
+This requirement states that the way to interact with the documents must be a REST API over Http protocol and must support the Http methods (GET, POST, PUT, PATCH, DELETE).
+REST is a type of architecture for APIs that defines the methods and constraints for the communications.
+There exist other types of API (SOAP, RPC, GraphQL) but REST is the most popular and one of the easiest to learn, making it the best candidate for an easy-accessible API.
+
+\subsection{Enable row level permission to documents}
+The API must authenticate user and limit their actions based on the permissions the user has on the object resource. Row-level states that authorization policies are enforced to the level of the single record.
+
+\subsection{Allow the reuse of existing components to ease the implementation of already defined structures (Microsoft Project)}
+In order to not reinvent the wheel, the software should use already popular tools, since many users already have familiarity with wide-known softwares and programming libraries. In particular, the API has to allow the transfer of Microsoft Project files, which already incorporate structured data about the project scheduling and resources.
+
+\subsection{Use python as programming language}
+Being the most popular programming language across university environments, python has been dictated as requirement for this software, in order to be easily readable and accessible.
+Although there exist programming languages that carry incredibly better performance (Java, GoLang, C++, .Net), the use of Python allows an easier development and requires less programming knowledge, making the project more accessible to people who do not possess high-level programming skills.
+
+\section{Design}
+
+After extensive research about the documents used in project management, it came the conclusion that there is no exact industry standard and every company defines its own rules. This could be acceptable in non digital environments, but informatic systems work with exact schemas and data so approximate approaches are not viable for computer-based solutions.
+Beside that, every project is different from the others, in size and complexity, so hard-coding a one-size-fits-all solution may not result in the most versatile approach.
+It has been decided to implement a platform that allows the user to define its document structures, constraints and authorizations. Using this paradigm, the software can cover more project needs than having a rigid structure.
+
+\subsection{Authentication}
+Authentication is carried out through the use of an internet standard called JWT Tokens (JSON Web Token). JWT Tokens are time-dependent tokens carrying a payload. They provide basic safety for the purpose of this thesis, have a solid foundation since it is based on cryptographic encryption but it is not exempt from flaws.
+
+\subsection{The project structure}
+The project has been identified as the top-level container for all the documents. Users with the appropriate authorization on the platform can create projects.
+
+\subsection{The document structure}
+Documents can be inserted by authorized users and are composed by the validation schema and the document content. Each time the document is edited, the system keeps track of the edit user, content and time. In order to ensure compatibility with other systems, the JsonPatch standard shapes the format of the edits.
+
+\subsection{Processes}
+Processes are defined as activities having documents as inputs and outputs. The system will prevent the insertion of the content of a document if there exists any defined process where the document to be inserted is listed in the outputs and there is at least one document listed as input that has no content.
+
+\subsection{Permissions}
+
+Permissions are defined at system, project and document level. Each call to the API requires a certain permission, that can be granted by users who have the “edit permissions” authorization for that resource.
+
+\subsection{Computed fields}
+
+In many cases documents need to incorporate a summary of other documents. For this event, the system allows to define computed fields. Computed fields are defined as a special string, whose value is ensured by the JsonPath standard. JsonPath allows to retrieve a subset of data through filtering, making it possible to summarize other documents.
+
+\subsection{Microsoft Project Files}
+Microsoft Project is one of the most popular software for scheduling, resource and cost allocation, and its inclusion in the software allows to interoperate with its files, making easier the communication with the API for users that already have familiarity with it.
+
+\subsection{MS Project Computed Fields}
+Like the document computed fields, users can define computed fields that summarize content from Microsoft Project files.
+
+\section{Technologies}
+
+\subsection{Python}
+Python is a general-purpose programming language, that is wide utilized due to its easy syntax and fast implementation. Its structure is more similar to a pseudocode, famous for the use of indentation instead of brackets. However, the use of Python has its drawbacks, due to its notorious slowness in running time, compared to many other languages.
+
+\subsection{FastApi}
+One of the “Big Three” in the python web development environment, has seen its popularity rise thanks to the fast prototyping and fast response times, from both of which claims its name. Specialized in API, FastApi can cover also other cases such as HTML responses and GraphQL API.
+
+\subsection{SQLModel, SQLAlchemy and Pydantic}
+Developed by the creator of FastApi, SQLModel is both an ORM (Object-Relational Mapping) and an interface for database interaction. It helps with the connection to a database and it transforms the results from the database into Python usable data and structures. It is based on both SQLAlchemy and Pydantic and combines their features. SQLAlchemy provides the relational mapping while Pydantic offers simple ways to return data, making it easy to return JSON in FastApi calls.
+
+\subsection{JSON}
+JavaScript Object Notation. Based on the JavaScript programming language, has seen widespread use in every environment. Many standards, languages and tools have been developed for JSON and in this project three of them are being used:
+
+\subsubsection{JsonSchema}
+Standard for schema validation of JSON documents, allows to define fine-grained constraints for fields and types.
+
+\subsubsection{JsonPatch}
+Format based on JSON which defines edits to a JSON document, allowing to record changes without having to store every variation.
+
+\subsubsection{JsonPath}
+Query language created for JSON, allows to define queries for a particular field or subset, with the option to apply a filtering logic.
+
+\subsection{MPXJ and JPype}
+MPXJ is a Java-based library that can work with Microsoft Project files. Being Java-based means that it needs a special porting and it has to run with the JPype library, that bridges Java code to make it interoperable with Python code.
+
+\chapter{Implementation}
+
+\section{Python code}
+
+\subsection{default module}
+
+\subsubsection{main.py}
+This python file is the first file called on startup and sets up the FastApi app instance, sets up the database tables and defines the basic endpoints for the user authentication.
+
+\begin{lstlisting}[language=Python, caption=App instance]
+app = FastAPI()
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption=Set up the database on startup]
+@app.on_event("startup")
+def on_startup():
+    """
+    Called on startup, creates the database tables if they do not exist
+    """
+    create_db_and_tables()
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption=Login for access token]
+@app.post("/token", response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
+                                 session  : Session = Depends(get_session)):
+    """
+    Reads data from the login form and returns a token if the user is valid
+
+    :param form_data: data sent by the client
+    :param session: database session from dependencies
+    :return: token
+    """
+    user = crud.get_user(session, form_data.username)
+    if user is None \
+            or \
+            not verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.user_name}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption=Register user]
+@app.post("/register", response_model=UserBase)
+def register(user: User, session: Session = Depends(get_session)):
+    """
+    Registers a new user
+
+    :param user: user to add to the database
+    :param session: database session from dependencies
+    :return: user
+    """
+    if crud.get_user(session, user.user_name) is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User could not be registered")
+    user.password = get_password_hash(user.password)
+    print(crud.get_users_count(session))
+    if crud.get_users_count(session) == 0:
+        user.system_permissions = [SystemPermission(permission=permission) for permission in SysPermissions]
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    if not user:
+        raise HTTPException(status_code=409, detail="User could not be registered")
+    return user
+\end{lstlisting}
+
+\subsubsection{app\_config.py}
+Contains the unique secret key used in the authentication process.
+\begin{lstlisting}[language=Python, caption=Secret key]
+SECRET_KEY = "991c37e0b2867aa8f7ab5028ee26fd185c2d1a92ab178c3e15330297c8931e2f"
+\end{lstlisting}
+The secret key should be private and changed from the one provided.
+A new key can be generated using the following command: openssl rand -hex 32
+
+\subsubsection{auth.py}
+Defines the methods necessary to the authorization of the user.
+The following are the permissions that can be checked for system, project and documents.
+
+\begin{lstlisting}[language=Python, caption=Permissions]
+class Permissions(str, enum.Enum):
+    """
+    Enum for permissions
+    """
+    create = "create"
+    view   = "view"
+    edit   = "edit"
+    delete = "delete"
+    edit_permissions = "edit_permissions"
+\end{lstlisting}
+The permissions check is called from the dependencies trough the methods has\_system\_permission, has\_project\_permission and has\_document\_permission
+
+\begin{lstlisting}[language=Python, caption=Check if user has permission on document]
+def has_document_permission(session   : Session, 
+                            user      : User, 
+                            project   : Project, 
+                            document  : Document, 
+                            permission: Permissions):
+    """
+    Checks if a user has a permission on a document
+
+    :param session: session to use
+    :param user: user to check
+    :param project: project of document
+    :param document: document to check
+    :param permission: permission to check
+    :return: True if user has permission, False otherwise
+    """
+    if project is None:
+        return False
+    if user.user_name == project.owner_name:
+        return True
+    if document is None:
+        perm = PermissionUtils(session, user.user_name, project.project_name)
+    else:
+        if user.user_name == document.author_name:
+            return True
+        perm = PermissionUtils(session, user.user_name, document.project_name, document.document_name)
+
+    if permission not in document_map.keys():
+        return False
+    p = document_map[permission]
+    return (
+        perm.has_sys_perm(p[0])
+        or perm.has_proj_perm(p[1])
+        or perm.has_doc_perm(p[2]))
+\end{lstlisting}
+
+\subsubsection{dependencies.py}
+Defines the methods used in the FastApi’s dependency injection system.
+One particular use of this dependency injection system is the check of authentication and authorization before the method execution, removing the need of checking inside it.
+
+\begin{lstlisting}[language=Python, caption=Retrieve current authenticated user]
+async def get_current_active_user(token  : str     = Depends(oauth2_scheme),
+                                  session: Session = Depends(get_session)):
+    """
+    Gets the current user from the token
+
+    :param token: token
+    :param session: database session from dependencies
+    :return: current user
+    """
+
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    user = crud.get_user(session, token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
+\end{lstlisting}
+
+Retrieve project, document or msprojects by name
+Thanks to dependency injection the method gets the project name from the path parameters
+
+
+\begin{lstlisting}[language=Python, caption=Retrieve project]
+def get_project(project_name: str | None = None,
+                session     : Session    = Depends(get_session)):
+    """
+    Gets the project named project_name from the database
+    If project_name is None, returns None
+    If project is not found, raises 404 exception
+
+    :param project_name: project name, from path params
+    :param session: database session from dependencies
+    :return: project
+    """
+    if project_name is None:
+        return None
+    db_project = crud.get_project_by_name(session, project_name)
+    if db_project is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+    return db_project
+\end{lstlisting}
+
+In the dependencies there is also the method for checking if the user has certain permissions.
+With the help of a callable class, if the user does not have the required permission the method will raise an exception and return the 401 unauthorized http status
+
+\begin{lstlisting}[language=Python, caption=Check Project Permission]
+class CheckProjectPermission:
+    """
+    Callable class that checks if user has permission on project
+    """
+    def __init__(self, permission: Permissions):
+        self.permission = permission
+
+    def __call__(self,
+                 session   : Session        = Depends(get_session),
+                 user      : User           = Depends(get_current_active_user),
+                 db_project: Project | None = Depends(get_project)):
+
+        if not has_project_permission(session, user, db_project, self.permission):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+
+def require_project_permission(permission: Permissions):
+    """
+    Checks if user has permission on project, raises 401 if not authorized
+
+    :param permission: permission to check
+    """
+    return CheckProjectPermission(permission)
+\end{lstlisting}
+
+The dependencies also help to retrieve the body content from different content-types.
+
+\begin{lstlisting}[language=Python, caption=Get request body]
+async def get_request_body(request: Request):
+    """
+    Gets request body from request and returns it as dict, parsing both json and yaml
+
+    :param request: request from body
+    :return: dict with request body
+    """
+    if "content-type" not in request.headers:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing Content-Type in header")
+    content_type = request.headers['content-type']
+
+    match content_type:
+        case "application/json":
+            try:
+                request_body = await request.json()
+            except json.decoder.JSONDecodeError as err:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+        case "application/x-yaml":
+            try:
+                request_body = yaml.safe_load(await request.body())
+            except Exception as err:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+        case _:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    return request_body
+\end{lstlisting}
+
+\subsection{database module}
+
+\subsubsection{crud.py}
+Defines the queries required for retrieval of records identified by multiple primary keys.
+The method uses the database session in order to retrieve the requested document.
+
+\begin{lstlisting}[language=Python, caption=Get document of project]
+def get_document_of_project(session: Session, project_name: str, document_name: str):
+    """
+    Get document of project
+
+    :param session: session to use
+    :param project_name: project name
+    :param document_name: document name
+    :return: document if found, None otherwise
+    """
+    return session.exec(select(Document)
+                        .where(Document.project_name  == project_name)
+                        .where(Document.document_name == document_name)
+                        ).first()
+\end{lstlisting}
+
+\subsection{datatypes module}
+
+\subsubsection{models.py}
+Defines the SQLModel models, composed by fields and relationships. 
+Example of a Model:
+
+\begin{lstlisting}[language=Python, caption=Document model]
+class Document(SQLModel, table=True):
+    # field name   | type            | options
+    project_name   : str             = Field(default=None, primary_key=True, foreign_key=Project.Fields.project_name)
+    document_name  : str             = Field(default=None, primary_key=True)
+    author_name    : str             = Field(default=None,                   foreign_key=User.Fields.user_name)
+    jsonschema     : Dict            = Field(default={}, sa_column=Column(JSON))
+    first          : Dict            = Field(default={}, sa_column=Column(JSON))
+    last           : Dict            = Field(default={}, sa_column=Column(JSON))
+    schema_add_date: datetime        = Field(default_factory=datetime.utcnow)
+    creation_date  : datetime | None = Field(default=None)
+    updated_date   : datetime | None = Field(default=None)
+
+    # relationship name | type                          | options
+    patches             : List["Patch"]                 = 
+        Relationship(back_populates="document")
+    project             : Project                       = 
+        Relationship(back_populates="documents")
+    permissions         : List["DocumentPermission"]    = 
+        Relationship(back_populates="document", sa_relationship_kwargs={ "cascade": "all, delete, delete-orphan"})
+        
+    documents_processes : List["DocumentProcess"]       = 
+        Relationship(back_populates="document", 
+        sa_relationship_kwargs={ "cascade": "all, delete, delete-orphan"})
+        
+    computed_fields     : List["ComputedField"]         = 
+        Relationship(
+        sa_relationship_kwargs={"primaryjoin": 'Document.document_name==ComputedField.field_document_name', "lazy": "joined", "cascade": "all, delete, delete-orphan"})
+        
+    computed_fields_reference: List["ComputedField"]    = 
+        Relationship(back_populates="reference_document", 
+        sa_relationship_kwargs={"primaryjoin": 'Document.document_name==ComputedField.reference_document_name', "lazy": "joined"})
+        
+    ms_computed_fields : List["MSProjectComputedField"] = 
+        Relationship(
+        sa_relationship_kwargs={"primaryjoin": 'Document.document_name==MSProjectComputedField.field_document_name', "lazy": "joined", "cascade": "all, delete, delete-orphan"})
+
+\end{lstlisting}
+
+\subsubsection{schemas.py}
+
+Defines pydantic models for the swagger documentation.
+
+\begin{lstlisting}[language=Python, caption=Schema models]
+"""
+Module for defining schemas for Swagger request body
+"""
+
+from typing import List, Dict
+from pydantic import BaseModel, Extra
+
+
+class ProcessSchema(BaseModel):
+    inputs : List[str]
+    outputs: List[str]
+
+    class Config:
+        extra = Extra.forbid
+
+
+class PermissionSchema(BaseModel):
+    documents: Dict
+
+    class Config:
+        extra = Extra.forbid
+
+
+class ProjectCreateSchema(BaseModel):
+    project_name: str
+    documents   : Dict[str, Dict]
+    processes   : List[ProcessSchema]
+    permissions : Dict[str, PermissionSchema]
+
+    class Config:
+        extra = Extra.forbid
+
+\end{lstlisting}
+
+\subsection{routers module}
+
+\subsubsection{projects.py}
+Defines the endpoints for the operations on projects, which include creation, retrieval, edit of permissions and deletion.
+
+\begin{lstlisting}[language=Python, caption=Permissions]
+@router.get("/", response_model=List[str])
+def get_projects(session: Session = Depends(get_session),
+                 user   : User    = Depends(get_current_active_user)):
+    """
+    Returns a list of all projects that the user has access to
+
+    :param session: session from dependencies
+    :param user: current user from dependencies
+    :return: list of project names
+    """
+
+    return [project.project_name for project in crud.get_projects(session)
+            if has_project_permission(session, user, project, Permissions.view)]
+\end{lstlisting}
+
+\subsubsection{documents.py}
+Defines the endpoints for the operations on documents, which include creation, insertion and edit content, retrieval, edit of permissions.
+
+\begin{lstlisting}[language=Python, caption=Set document content]
+@router.put("/{document_name}",
+            response_model=DocumentReturn,
+            dependencies=[Depends(require_document_permission(Permissions.edit)),
+                          Depends(check_document_process),
+                          Depends(validate_document)])
+async def put_document_to_project(document_body: Dict     = Depends(get_request_body),
+                                  user         : User     = Depends(get_current_active_user),
+                                  db_project   : Project  = Depends(get_project),
+                                  db_doc       : Document = Depends(get_document),
+                                  session      : Session  = Depends(get_session)):
+    """
+    Add or update content of document
+    Requires the authenticated user to have the permission to edit the document
+
+    :param document_body: document content to add or update
+    :param user: current user from dependencies
+    :param db_project: project of path from dependencies
+    :param db_doc: document of path from dependencies
+    :param session: session from dependencies
+    :return: the document
+    """
+
+    last = db_doc.last
+    time = datetime.utcnow()
+    db_doc.last = document_body
+    db_doc.updated_date = time
+
+    if not bool(db_doc.first):
+        db_doc.first = document_body
+        db_doc.creation_date = time
+        db_doc.author_name = user.user_name
+    else:
+        patch = json.loads(jsonpatch.JsonPatch.from_diff(last, db_doc.last).to_string())
+        diff = Patch(project_name=db_project.project_name, patch=patch, user_name=user.user_name)
+        db_doc.patches.append(diff)
+
+    for computed_field in db_doc.computed_fields_reference:
+        jsonpath_expr = jsonpath_ng.ext.parse(computed_field.jsonpath)
+        computed_field.field_value = list(map(lambda a: a.value, jsonpath_expr.find(db_doc.last)))
+
+    session.add(db_doc)
+    session.commit()
+    session.refresh(db_doc)
+
+    db_doc.update_forward_refs()
+
+    return db_doc
+\end{lstlisting}
+
+\subsubsection{msprojects.py}
+Defines the endpoints for the operations on Microsoft Project files, which include the upload, retrieval and deletion.
+
+\begin{lstlisting}[language=Python, caption=Get microsoft project file]
+@router.get("/{ms_project_name}", 
+            dependencies=[Depends(require_project_permission(Permissions.view))])
+async def get_ms_file_of_project(db_ms_project: MSProject = Depends(get_ms_project)):
+    """
+    Get ms file of a project
+    :param db_ms_project: ms project from dependencies
+    :return: ms project if found, 404 otherwise
+    """
+    return db_ms_project
+\end{lstlisting}
+
+\subsection{security module}
+\subsubsection{utils.py}
+Defines the methods for hashing and verifying passwords
+
+\begin{lstlisting}[language=Python, caption=Password hashing and verifying methods]
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 3000
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def verify_password(plain_password, hashed_password):
+    """
+    Verifies password against a hash
+
+    :param plain_password: password to verify
+    :param hashed_password: hash to verify against
+    :return: True if password matches, False otherwise
+    """
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    """
+    Returns a hash of the password
+
+    :param password: password to hash
+    :return: hashed password
+    """
+    return pwd_context.hash(password)
+\end{lstlisting}
+
+\subsubsection{schemas.py}
+Defines the pydantic schemas for the JWT token
+
+\begin{lstlisting}[language=Python, caption=Token Schemas]
+"""
+Token schemas
+"""
+
+from pydantic import BaseModel
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type  : str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+\end{lstlisting}
+
+\subsection{utils module}
+Contains the common utility functions as the retrieval of the current timestamp.
+
+\begin{lstlisting}[language=Python, caption=Utility functions]
+"""
+Module for utility functions
+"""
+
+import time
+
+
+def current_milli_time():
+    """
+    Returns the current time in milliseconds
+
+    :return:
+    """
+    return round(time.time() * 1000)
+
+\end{lstlisting}
+
+\section{Schemas}
+
+Schemas are fundamental for the correct communication with the API. Every endpoint has defined input and output schemas, that the client must respect.
+This API accepts JSON and YAML schemas to define projects and documents. Documents fields are user-defined and follow constraints based on a jsonschema the user uploads
+
+\subsection{Project Schema}
+
+\begin{lstlisting}[language=yaml, caption=Project creation schema]
+project_name: example_project
+documents:
+	...
+processes:
+	...
+permissions:
+	...
+\end{lstlisting}
+
+Created project must provide a unique name. The other fields (documents, processes and permissions) are optional.
+The “documents” field specifies the documents that the project will contain. 
+Documents can be added also after the project creation and the schema for insertion is the same.
+As the name suggests, “Processes” defines the processes for the project. Each process has two fields: inputs and outputs.
+
+\begin{lstlisting}[language=yaml, caption=Processes field in Project creation schema]
+processes:
+  develop_work_breakdown_structure:
+    inputs: [ project_charter ]
+    outputs: [ work_breakdown_structure ]
+\end{lstlisting}
+
+The “Permissions” field defines the authorization on the project and documents for the users.
+
+\begin{lstlisting}[language=yaml, caption=Permissions field in Project creation schema]
+permissions:
+  doge:
+    documents:
+      project_charter: [ view, edit, delete ]
+      work_breakdown_structure: [ view, edit, delete ]
+\end{lstlisting}
+
+\subsection{Document schema}
+
+Documents are created specifying name and schema.
+
+\begin{lstlisting}[language=yaml, caption=Document creation schema]
+project_charter:
+  jsonschema:
+    properties:
+      overview: { type: string }
+      impact: { type: string }
+      organization: { type: string }
+    additionalProperties: false
+  computed_fields:
+    scope:
+      reference_document: work_breakdown_structure
+      jsonpath: $.elements[?(@.level == 1)].name
+  ms_computed_fields:
+    scope:
+      ms_project_name: example
+      field_from: tasks
+      jsonpath: $[?(@.level < 3)].name
+\end{lstlisting}
+
+As the name explains, “jsonschema” defines the schema which the document will be validated against.
+“computed\_fields” is a list of fields that refer to other documents of the project. To provide a summary and not the entire document, the field “jsonpath” defines which parts of the other document to include.
+“ms\_computed\_fields” works like “computed\_fields” only that the referred document is a Microsoft Project document. “field\_from” specifies from which of the three fields (tasks, resources, proj\_info) the document is referring to.
+
+\chapter{Version Control, Deployment and Documentation}
+
+\section{Version control repository}
+In order to track changes, it has been selected the GitHub repository platform, that offers reliable tools for software versioning.\newline
+The source code is publicy available at\newline 
+\href{https://github.com/pm-lab-polito/EnvForDigitalProjectDelivery/tree/main/project-management-api}{\textbf{github.com/pm-lab-polito/EnvForDigitalProjectDelivery/tree/main/project-management-api}}
+
+\section{Deployment}
+Docker has been selected for the deployment. The Dockerfile in the code files takes a python 3.10 image, installs the required packages, installs java and runs uvicorn.
+
+\begin{lstlisting}
+FROM python:3.10
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get -y install default-jre-headless && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip
+WORKDIR /code
+COPY ./app/requirements.txt /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+COPY ./app /code/app
+ENV PYTHONPATH /code/app
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+\end{lstlisting}
+
+In order to run the API, three steps are required: build the image, create a volume and finally run the image in a container specifying the volume for the "db" folder.
+\begin{lstlisting}[language=bash]
+sudo docker build -t myimage .
+sudo docker volume create myvolume
+sudo docker run -d --name mycontainer -v myvolume:/db -p 80:80 myimage
+\end{lstlisting}
+
+\section{Documentation}
+Documentation has been carried out through the Sphinx library, which with the help of some tools automatically generates the documentation from the docstrings in the code.
+The documentation is available at\newline
+\href{https://project-management-api.web.app}{\textbf{https://project-management-api.web.app}}
+
+\chapter{Explanatory use case}
+
+\section{First step: Registration}
+User sends a POST request to /register with the following body:
+
+\begin{lstlisting}[language=json, caption=register form]
+{
+	"user_name": "doge",
+	"password" : "doge_pass"
+}
+\end{lstlisting}
+If no user exists with the specified name, the system adds the user to the database and returns:
+
+\begin{lstlisting}[language=json, caption=register response]
+{
+    "user_name": "doge"
+}
+\end{lstlisting}
+If the user is the first registered user, the system grants the user all the authorizations.
+
+\section{Second step: Login}
+In order to use the API endpoints, the user must be authenticated.
+The user sends a POST request to /token with the same body as the register:
+
+\begin{lstlisting}[language=json, caption=Login form]
+{
+	"user_name": "doge",
+	"password" : "doge_pass"
+}
+\end{lstlisting}
+
+If the system finds correspondence of the username and password in the database, it will return a valid JWT token that the user can use.
+Example of response:
+
+\begin{lstlisting}[language=json, caption=Token response]
+{
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkb2dlIiwiZXhwIjoxNjU0MTg0MTM2fQ.SToW2wOkh2KrVRdQDfTaSZeG5Qajy9DzoXwB4HQNf0k",
+    "token_type": "bearer"
+}
+\end{lstlisting}
+
+\section{Third step: Project creation}
+
+If the user has the permission to create projects, it can send a POST request to /projects
+Example request:
+
+\begin{lstlisting}[language=yaml, caption=Project creation request body]
+# Project name
+project_name: example_project
+documents:
+  project_charter:
+    # jsonschema of the document
+    jsonschema:
+      properties:
+        overview: { type: string }
+        impact: { type: string }
+        organization: { type: string }
+      additionalProperties: false
+    computed_fields:
+      scope:
+        reference_document: work_breakdown_structure
+        jsonpath: $.elements[?(@.level == 1)].name
+      scope:
+        ms_project_name: example
+        field_from: tasks
+        jsonpath: $[?(@.level < 3)].name
+  work_breakdown_structure:
+    jsonschema:
+      properties:
+        elements:
+          type: array
+          items:
+            properties:
+              level: { type: integer }
+              code: { type: string }
+              name: { type: string }
+              description: { type: string }
+            additionalProperties: false
+        additionalProperties: false
+processes:
+  # process name
+  develop_project_charter:
+    inputs:
+    outputs: [ project_charter ]
+  develop_work_breakdown_structure:
+    inputs: [ project_charter ]
+    outputs: [ work_breakdown_structure ]
+permissions:
+  # user name
+  doge:
+    documents:
+      project_charter: [ view, edit, delete ]
+      work_breakdown_structure: [ view, edit, delete ]
+\end{lstlisting}
+
+The server would return:
+
+\begin{lstlisting}[language=json, caption=Project response]
+{
+    "project_name": "example_project",
+    "owner_name": "doge",
+    "documents": [
+        {
+            "project_name": "example_project",
+            "document_name": "project_charter",
+            "author_name": "doge",
+            "jsonschema": {
+                ...
+            },
+            "first": {},
+            "last": {},
+            "creation_date": null,
+            "patches": [],
+            "computed_fields": {
+                "scope": []
+            },
+            "ms_computed_fields": {}
+        },
+        {
+            "project_name": "example_project",
+            "document_name": "work_breakdown_structure",
+            "author_name": "doge",
+            "jsonschema": {
+                ...
+            },
+            "first": {},
+            "last": {},
+            "creation_date": null,
+            "patches": [],
+            "computed_fields": {},
+            "ms_computed_fields": {}
+        }
+    ]
+}
+\end{lstlisting}
+
+\section{Fourth step: Document content insertion}
+
+The endpoint for the document content insertion is\newline
+PUT /projects/example\_project/documents/project\_charter
+
+\begin{lstlisting}[language=json, caption=Document content insertion]
+{
+  "overview": "Academic research for implementing an environment for digital delivery of projects",
+  "impact": "Creation of the environment...",
+  "organization": "PoliTo Project Management Lab"
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json, caption=Document response]
+{
+    "project_name": "example_project",
+    "document_name": "project_charter",
+    "author_name": "doge",
+    "jsonschema": {
+        ...
+    },
+    "first": {
+        "overview": "Academic research for implementing an environment for digital delivery of projects",
+        "impact": "Creation of the environment...",
+        "organization": "PoliTo"
+    },
+    "last": {
+        "overview": "Academic research for implementing an environment for digital delivery of projects",
+        "impact": "Creation of the environment...",
+        "organization": "PoliTo"
+    },
+    "creation_date": "2022-04-11T16:05:06.575202",
+    "patches": []
+    "computed_fields": {
+          "scope": []
+    },
+    "ms_computed_fields": {
+          "scope": []
+    }
+}
+\end{lstlisting}
+
+\section{Fifth step: Edit document content}
+
+The endpoint for document editing is\newline
+PATCH /projects/example\_project/documents/project\_charter\newline
+In this example the user wants to edit the field “organization” from “PoliTo” to “PoliTo Project Management Lab”
+
+\begin{lstlisting}[language=json, caption=document patch request body]
+{
+  "organization": "PoliTo Project Management Lab"
+}
+\end{lstlisting}
+
+Then the response would be
+
+\begin{lstlisting}[language=json, caption=document patch response]
+{
+    "project_name": "example_project",
+    "document_name": "project_charter",
+    "author_name": "doge",
+    "jsonschema": {
+        ...
+    },
+    "first": {
+        "overview": "Academic research for implementing an environment for digital delivery of projects",
+        "impact": "Creation of the environment...",
+        "organization": "PoliTo"
+    },
+    "last": {
+        "overview": "Academic research for implementing an environment for digital delivery of projects",
+        "impact": "Creation of the environment...",
+        "organization": "PoliTo Project Management Lab"
+    },
+    "creation_date": "2022-04-11T16:05:06.575202",
+    "patches": [
+        {
+            "id": 1,
+            "user_name": "doge",
+            "updated_date": "2022-04-11T16:05:57.498469",
+            "patch": [
+                {
+                    "op": "replace",
+                    "path": "/organization",
+                    "value": "PoliTo Project Management Lab"
+                }
+            ]
+        }
+    ], 
+    "computed_fields": {
+          "scope": []
+    },
+    "ms_computed_fields": {
+          "scope": []
+    }
+}
+\end{lstlisting}
+
+
+\section{Sixth step: Adding a second document}
+Adding the work breakdown structure will provide a summary of the tasks to the project charter.
+
+\begin{lstlisting}[language=json, caption=Work breakdown structure insertion body]
+{
+  "elements": [
+    {
+      "level": 1,
+      "code": "1",
+      "name": "Task 1",
+      "description": "descr"
+    },
+    {
+      "level": 2,
+      "code": "1.1",
+      "name": "Task 1.1",
+      "description": "descr"
+    },
+    {
+      "level": 3,
+      "code": "1.1.1",
+      "name": "Task 1.1.1",
+      "description": "descr"
+    },
+    {
+      "level": 1,
+      "code": "2",
+      "name": "Task 2",
+      "description": "descr"
+    }
+  ]
+}
+\end{lstlisting}
+
+In the project charter document, the “computed\_fields” value will be:
+
+\begin{lstlisting}[language=json, caption=computed\_fields value]
+"computed_fields": {
+          "scope": [
+              "Task 1",
+              "Task 2"
+          ]
+    }
+\end{lstlisting}
+
+\section{Seventh step: Adding a Microsoft Project file}
+
+The endpoint for adding Microsoft Project Files is
+POST /projects/example\_project/msprojects/
+
+\begin{lstlisting}[language=json, caption=MS Project file insertion response]
+{
+  "project_name": "example_project",
+  "ms_project_name": "example",
+  "author_name": "doge",
+  "update_author_name": "doge"
+  "proj_info": {
+    "baseline_start": "Thu May 16 08:00:00 CEST 2019",
+    "baseline_finish": "Wed Dec 30 17:00:00 CET 2020",
+    "currency_code": "EUR"
+  },
+  "resources": [
+    {
+      "name": "Workers IT",
+      "id": "1"
+    },
+    {
+      "name": "Workers IND",
+      "id": "2"
+    },
+    ...
+  ],
+  "tasks": [
+    ...
+    {
+      "name": "C1 - Start of Activities",
+      "level": 2,
+      "duration": "0.0d",
+      "predecessors": [
+        {
+          "target_task": "M1 - Effective Date",
+          "target_task_id": "2",
+          "lag": "42.0ed",
+          "type": "FS"
+        }
+      ],
+      "ef": "Thu Jun 27 08:00:00 CEST 2019",
+      "es": "Thu Jun 27 08:00:00 CEST 2019",
+      "lf": "Thu Jun 27 08:00:00 CEST 2019",
+      "ls": "Thu Jun 27 08:00:00 CEST 2019",
+      "start": "Thu Jun 27 08:00:00 CEST 2019",
+      "finish": "Thu Jun 27 08:00:00 CEST 2019",
+      "cost": "0.0",
+      "id": "3"
+    },
+    ...
+  ],
+}
+\end{lstlisting}
+
+The value of “ms\_computed\_fields” will be:
+
+\begin{lstlisting}[language=json, caption=ms\_computed\_fields value after insertion]
+"ms_computed_fields": {
+          "scope": [
+              "2018-PMTermProject_BID_baseline",
+              "New production line",
+              "M1 - Effective Date",
+              "C1 - Start of Activities",
+              "Design",
+              "C2 - Design completed",
+              "Purcahse",
+              "Manifacturing",
+              "Transportation",
+              "Testing",
+              "M2 - Owner's Taking Over",
+              "Civil Works",
+              "O1 - Permits completed",
+              "O2 - Civil works substantial completion"
+          ]
+    }
+\end{lstlisting}
+
+\chapter{Findings}
+
+\section{Conclusion}
+
+It has been demonstrated to be rather accessible to design and implement a platform to support the enabling of a digital transformation. At this development level, the API offers a sufficient number of features and allows the customization and addition of features with ease.
+
+\section{(TLR) Technology Readiness Level}
+It is possible to assert that the TLR for this development has reached level TRL6, since the platform has been tested to be ready to accept complex cases.
+
+\end{document}
