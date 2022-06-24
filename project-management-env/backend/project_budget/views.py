@@ -2,14 +2,11 @@ from rest_framework import generics, status
 from project_budget.models import (ProjectBudget, ResourceSpending, ContractSpending)
 from .serializers import *
 from rest_framework.response import Response
-from custom_permissions import permissions as cust_perm
 from project_charter import permissions as charter_perm
 from .permissions import *
 from project_charter.models import ProjectCharter
 from django.http import Http404
-from accounts.models import User
 from projects.models import Project
-from guardian.shortcuts import assign_perm, remove_perm
 
 #   Set a budget of a project charter
 class ProjectBudgetAPI(generics.ListCreateAPIView):
@@ -133,12 +130,73 @@ class EditProjectBudgetAPI(generics.UpdateAPIView):
 
 
 
+############ Additional Budget ############
+
+class RequestAdditionalBudgetAPI(generics.CreateAPIView):
+    name = 'request-additional-budget'
+    serializer_class = AdditionalBudgetSerializer
+    permission_classes = [hasAddAdditionalBudgetPermission,]
+
+    def create(self, request, *args, **kwargs):
+        try:
+            project = Project.objects.get(id=request.data.get('project'))
+            self.check_object_permissions(request, project)
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            budget = serializer.save()
+
+            return Response(
+                {
+                    'detail': 'Additional budget request placed successfully.',
+                    'additional-budget': AdditionalBudgetSerializer(budget, context=self.get_serializer_context()).data,
+                },
+                status=status.HTTP_201_CREATED
+            )
+        except Project.DoesNotExist:
+            raise Http404
+
+
+class UpdateAdditionalFundRequestStatusAPI(generics.UpdateAPIView):
+    name = 'update-fund-request-status'
+    serializer_class = AdditionalBudgetSerializer
+    queryset = AdditionalBudget.objects.all()
+    permission_classes = [hasChangeAdditionalBudgetPermission,]
+
+
+class GetAdditionalBudgetDetailsAPI(generics.RetrieveAPIView):
+    name = 'get-additional-budget-details'
+    serializer_class = AdditionalBudgetViewSerializer
+    queryset = AdditionalBudget.objects.all()
+    permission_classes = [hasViewAdditionalBudgetPermission,]
+
+
+#   Get all additional budget requests of a project 
+class GetAdditionalBudgetRequestsAPI(generics.ListAPIView): 
+    name = 'get-additional-budget-requests'
+    permission_classes = [hasViewAdditionalBudgetPermission,]
+    queryset = AdditionalBudget.objects.all()
+    serializer_class = AdditionalBudgetViewSerializer
+    model = serializer_class.Meta.model
+
+    def list(self, request, project_id):
+        try:
+            project_charter = ProjectCharter.objects.get(project=project_id)
+            budgets = ProjectBudget.objects.all().filter(project_charter=project_charter)
+            qs = self.model.objects.filter(budget__in=budgets)
+            serializer = AdditionalBudgetViewSerializer(qs, many=True)
+            self.check_object_permissions(self.request, qs[0])
+        except ProjectCharter.DoesNotExist:
+            raise Http404
+
+        return Response(serializer.data)
+
+
 ############ Resource Spending ############
 
 class AddResourceSpendingAPI(generics.CreateAPIView):
     name = 'add-resource-spending'
     serializer_class = ResourceSpendingSerializer
-    permission_classes = [hasAddProjectBudgetSpendingsPermission,]
+    permission_classes = [hasAddProjectBudgetSpendingPermission,]
 
     def create(self, request, *args, **kwargs):
         try:
@@ -150,7 +208,7 @@ class AddResourceSpendingAPI(generics.CreateAPIView):
 
             return Response(
                 {
-                    'detail': 'Project resource added successfully.',
+                    'detail': 'Resource Spending added successfully.',
                     'resource-spending': ResourceSpendingSerializer(resource, context=self.get_serializer_context()).data,
                 },
                 status=status.HTTP_201_CREATED
@@ -163,21 +221,21 @@ class UpdateResourceSpendingAPI(generics.UpdateAPIView):
     name = 'update-resource-spending'
     serializer_class = ResourceSpendingSerializer
     queryset = ResourceSpending.objects.all()
-    permission_classes = [hasChangeProjectBudgetSpendingsPermission,]
+    permission_classes = [hasChangeProjectBudgetSpendingPermission,]
 
 
 class GetResourceSpendingDetailsAPI(generics.RetrieveAPIView):
     name = 'get-resource-spending-details'
     serializer_class = ResourceSpendingSerializer
     queryset = ResourceSpending.objects.all()
-    permission_classes = [hasViewProjectBudgetSpendingsPermission,]
+    permission_classes = [hasViewProjectBudgetSpendingPermission,]
 
 
 class GetResourceSpendingsByBudgetAPI(generics.ListAPIView):
-    name = 'get-resource-spendings-by-budget'
+    name = 'get-resource-spending-by-budget'
     serializer_class = ResourceSpendingSerializer
     model = serializer_class.Meta.model
-    permission_classes = [hasViewProjectBudgetSpendingsPermission,]
+    permission_classes = [hasViewProjectBudgetSpendingPermission,]
     lookup_url_kwarg = 'budget_id'
 
     def get_queryset(self):
@@ -195,7 +253,7 @@ class DeleteResourceSpendingAPI(generics.DestroyAPIView):
     name = 'delete-resource-spending'
     serializer_class = ResourceSpendingSerializer
     queryset = ResourceSpending.objects.all()
-    permission_classes = [hasDeleteProjectBudgetSpendingsPermission,]
+    permission_classes = [hasDeleteProjectBudgetSpendingPermission,]
 
 
 
@@ -205,7 +263,7 @@ class DeleteResourceSpendingAPI(generics.DestroyAPIView):
 class AddContractSpendingAPI(generics.CreateAPIView):
     name = 'add-contract-spending'
     serializer_class = ContractSpendingSerializer
-    permission_classes = [hasAddProjectBudgetSpendingsPermission,]
+    permission_classes = [hasAddProjectBudgetSpendingPermission,]
 
     def create(self, request, *args, **kwargs):
         try:
@@ -217,7 +275,7 @@ class AddContractSpendingAPI(generics.CreateAPIView):
 
             return Response(
                 {
-                    'detail': 'Procurement contract added successfully.',
+                    'detail': 'Contract Spending added successfully.',
                     'contract-spending': ContractSpendingSerializer(contract, context=self.get_serializer_context()).data,
                 },
                 status=status.HTTP_201_CREATED
@@ -230,21 +288,21 @@ class UpdateContractSpendingAPI(generics.UpdateAPIView):
     name = 'update-contract-spending'
     serializer_class = ContractSpendingSerializer
     queryset = ContractSpending.objects.all()
-    permission_classes = [hasChangeProjectBudgetSpendingsPermission,]
+    permission_classes = [hasChangeProjectBudgetSpendingPermission,]
 
 
 class GetContractSpendingDetailsAPI(generics.RetrieveAPIView):
     name = 'get-contract-spending-details'
     serializer_class = ContractSpendingSerializer
     queryset = ContractSpending.objects.all()
-    permission_classes = [hasViewProjectBudgetSpendingsPermission,]
+    permission_classes = [hasViewProjectBudgetSpendingPermission,]
 
 
 class GetContractSpendingsByBudgetAPI(generics.ListAPIView):
-    name = 'get-contract-spendings-by-budget'
+    name = 'get-contract-spending-by-budget'
     serializer_class = ContractSpendingSerializer
     model = serializer_class.Meta.model
-    permission_classes = [hasViewProjectBudgetSpendingsPermission,]
+    permission_classes = [hasViewProjectBudgetSpendingPermission,]
     lookup_url_kwarg = 'budget_id'
 
     def get_queryset(self):
@@ -262,15 +320,15 @@ class DeleteContractSpendingAPI(generics.DestroyAPIView):
     name = 'delete-contract-spending'
     serializer_class = ContractSpendingSerializer
     queryset = ContractSpending.objects.all()
-    permission_classes = [hasDeleteProjectBudgetSpendingsPermission,]
+    permission_classes = [hasDeleteProjectBudgetSpendingPermission,]
 
 
-############ Forecast Spendings ############
+############ Forecast Spending ############
 
 class ForecastBalanceAPI(generics.GenericAPIView):
     name = 'get-forecast-balance'
     serializer_class = ForecastBalanceSerializer
-    permission_classes = [hasViewProjectBudgetSpendingsPermission,]
+    permission_classes = [hasViewProjectBudgetSpendingPermission,]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -288,10 +346,10 @@ class ForecastBalanceAPI(generics.GenericAPIView):
             raise Http404
 
 
-class ForecastFutureSpendingsAPI(generics.GenericAPIView):
-    name = 'forecast-future-spendings'
+class ForecastFutureSpendingAPI(generics.GenericAPIView):
+    name = 'forecast-future-spending'
     serializer_class = ForecastSerializer
-    permission_classes = [hasViewProjectBudgetSpendingsPermission,]
+    permission_classes = [hasViewProjectBudgetSpendingPermission,]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -307,123 +365,3 @@ class ForecastFutureSpendingsAPI(generics.GenericAPIView):
         
         except ProjectBudget.DoesNotExist:
             raise Http404
-
-
-
-
-#### Permissions #####
-def validated_project_charter_permissions(permissions):
-    if permissions and len(permissions) > 0:
-        if ('add_project_spendings' in permissions or
-            'change_project_spendings' in permissions or 
-            'delete_project_spendings' in permissions or 
-            'view_project_spendings' in permissions):
-            return True
-    return False
-
-        
-class AddProjectBudgetPermissionsOfUserAPI(generics.GenericAPIView):
-    name = 'add-project-budget-spendings-permissions'
-    permission_classes = [cust_perm.IsAuthorOfProject,]
-
-    def post(self, request, *args, **kwargs):
-        try:
-            user_id = request.data.get('user_id')
-            user = User.objects.get(id=user_id)
-            project_id = request.data.get('project_id')
-            project = Project.objects.get(id=project_id)
-            permissions = request.data.get('permissions')
-            # check if a request user is a project author 
-            self.check_object_permissions(request, project)
-            # user is stakeholder of the project
-            if user in project.stakeholders.all():
-                if validated_project_charter_permissions(permissions):
-                    if 'add_project_spendings' in permissions:
-                            assign_perm('project_budget.add_project_spendings', user, project)
-
-                    if 'change_project_spendings' in permissions:
-                            assign_perm('project_budget.change_project_spendings', user, project)
-
-                    if 'delete_project_spendings' in permissions:
-                            assign_perm('project_budget.delete_project_spendings', user, project)
-
-                    if 'view_project_spendings' in permissions:
-                            assign_perm('project_budget.view_project_spendings', user, project)
-                    
-                    return Response(status=status.HTTP_201_CREATED)
-                
-                return Response({
-                        'detail': 'Permissions is not defined correctly.'
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            return Response({
-                        'detail': 'User must be a stakeholder of the project to assign permissions.'
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        except User.DoesNotExist:
-            return Response(
-                {
-                    'detail': 'User does not exist'
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
-        except Project.DoesNotExist:
-            return Response(
-                {
-                    'detail': 'Project does not exist'
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-
-class DeleteProjectBudgetPermissionsOfUserAPI(generics.GenericAPIView):
-    name = 'delete-project-budget-spendings-permissions'
-    permission_classes = [cust_perm.IsAuthorOfProject,]
-
-    def post(self, request, *args, **kwargs):
-        try:
-            user_id = request.data.get('user_id')
-            user = User.objects.get(id=user_id)
-            project_id = request.data.get('project_id')
-            project = Project.objects.get(id=project_id)
-            permissions = request.data.get('permissions')
-            # check if a request user is a project author 
-            self.check_object_permissions(request, project)
-            if validated_project_charter_permissions(permissions):
-                if 'add_project_spendings' in permissions:
-                        remove_perm('project_budget.add_project_spendings', user, project)
-
-                if 'change_project_spendings' in permissions:
-                        remove_perm('project_budget.change_project_spendings', user, project)
-
-                if 'delete_project_spendings' in permissions:
-                        remove_perm('project_budget.delete_project_spendings', user, project)
-
-                if 'view_project_spendings' in permissions:
-                        remove_perm('project_budget.view_project_spendings', user, project)
-                
-                return Response(status=status.HTTP_204_NO_CONTENT)
-
-            
-            return Response({
-                    'detail': 'Permissions is not defined correctly.'
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        except User.DoesNotExist:
-            return Response(
-                {
-                    'detail': 'User does not exist'
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )
-        except Project.DoesNotExist:
-            return Response(
-                {
-                    'detail': 'Project does not exist'
-                },
-                status=status.HTTP_404_NOT_FOUND
-            )

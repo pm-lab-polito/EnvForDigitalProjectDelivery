@@ -1,6 +1,8 @@
+from dataclasses import fields
 from rest_framework import serializers
-from .models import ProjectBudget, ResourceSpending, ContractSpending
+from .models import ProjectBudget, ResourceSpending, ContractSpending, AdditionalBudget
 from .eva import EVA
+from django.db.models import Sum
 
 
 class CreateUpdateListSerializer(serializers.ListSerializer):
@@ -35,6 +37,41 @@ class ProjectBudgetSerializer(serializers.ModelSerializer):
 
 
 
+class AdditionalBudgetSerializer(serializers.ModelSerializer):
+    def create(self, data, *args, **kwargs):
+        instance = AdditionalBudget.objects.create(
+            budget=data.get('budget'),
+            amount=data.get('amount')
+        )
+        instance.save()
+
+        return instance
+
+    def update(self, instance, validated_data):
+        status = validated_data.get('status')
+        if status == 'approved' or status == 'denied':
+            instance.status = status
+        else:
+            raise serializers.ValidationError({"detail": "Status is not defined correctly."})
+        instance.save()
+
+        return instance
+
+
+    class Meta:
+        model = AdditionalBudget
+        fields = ('id', 'budget', 'amount', 'date', 'status')
+
+
+class AdditionalBudgetViewSerializer(serializers.ModelSerializer):
+    budget = ProjectBudgetSerializer(required=True)
+    
+    class Meta:
+        model = AdditionalBudget
+        fields = ('id', 'budget', 'amount', 'date', 'status')
+
+
+
 class ResourceSpendingSerializer(serializers.ModelSerializer):
     def create(self, validated_data, *args, **kwargs):
         amount = validated_data.get('assignment') * validated_data.get('resource').cost
@@ -52,8 +89,13 @@ class ResourceSpendingSerializer(serializers.ModelSerializer):
             date = date
         )
 
-        # check if actual cost (including last spending) is greater than current budget, deny last spending    
-        if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
+        # check if actual cost (including last spending) is greater than current budget, deny last spending
+        budget = instance.budget.budget 
+        additional_budget = AdditionalBudget.objects.all().filter(budget=budget).filter(status='approved').aggregate(Sum('amount')).get('amount__sum')    
+        if not additional_budget:
+            additional_budget = 0.0
+        budget += additional_budget
+        if instance.budget.actual_cost().get('actual_cost') > budget:
             instance.approval_status = 'denied'
             instance.save()
 
@@ -69,7 +111,12 @@ class ResourceSpendingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"detail": "Spending date must be in budget year."})
 
         # check if actual cost (including last updated spending) is greater than current budget, deny last update    
-        if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
+        budget = instance.budget.budget 
+        additional_budget = AdditionalBudget.objects.all().filter(budget=budget).filter(status='approved').aggregate(Sum('amount')).get('amount__sum')    
+        if not additional_budget:
+            additional_budget = 0.0
+        budget += additional_budget
+        if instance.budget.actual_cost().get('actual_cost') > budget:
             raise serializers.ValidationError('You are over budget.')
         else: 
             instance.approval_status = 'approved'
@@ -101,7 +148,12 @@ class ContractSpendingSerializer(serializers.ModelSerializer):
         )
 
         # check if actual cost (including last updated spending) is greater than current budget, deny last update    
-        if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
+        budget = instance.budget.budget 
+        additional_budget = AdditionalBudget.objects.all().filter(budget=budget).filter(status='approved').aggregate(Sum('amount')).get('amount__sum')    
+        if not additional_budget:
+            additional_budget = 0.0
+        budget += additional_budget
+        if instance.budget.actual_cost().get('actual_cost') > budget:
             instance.approval_status = 'denied'
             instance.save()
             
@@ -117,7 +169,12 @@ class ContractSpendingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"detail": "Spending date must be in budget year."})
 
         # check if actual cost (including last updated spending) is greater than current budget, deny last update    
-        if instance.budget.actual_cost().get('actual_cost') > instance.budget.budget:
+        budget = instance.budget.budget 
+        additional_budget = AdditionalBudget.objects.all().filter(budget=budget).filter(status='approved').aggregate(Sum('amount')).get('amount__sum')    
+        if not additional_budget:
+            additional_budget = 0.0
+        budget += additional_budget
+        if instance.budget.actual_cost().get('actual_cost') > budget:
             raise serializers.ValidationError('You are over budget.')
         else: 
             instance.approval_status = 'approved'

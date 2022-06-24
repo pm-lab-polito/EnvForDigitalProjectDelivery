@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import (AddContractAPI, UpdateContractAPI, GetContractDetailsAPI, GetContractsOfProjectAPI,
-    DeleteContractAPI, AddProjectContractPermissionsOfUserAPI, DeleteProjectContractPermissionsOfUserAPI)
+from .views import *
 
 urlpatterns = [
     path('contracts/add/', AddContractAPI.as_view(), name='add-contract'),
@@ -10,8 +9,4 @@ urlpatterns = [
         name='get-contracts-of-project'),
     path('contracts/<int:pk>/delete/', DeleteContractAPI.as_view(), name='delete-contract'),
 
-    path('permissions/add/', AddProjectContractPermissionsOfUserAPI.as_view(), 
-        name='add-project-contract-permissions'),
-    path('permissions/delete/', DeleteProjectContractPermissionsOfUserAPI.as_view(),
-        name='delete-project-contract-permissions'),
 ]

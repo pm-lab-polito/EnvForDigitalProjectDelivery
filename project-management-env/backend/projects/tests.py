@@ -525,6 +525,6 @@ class ProjectTest(APITestCase):
         response = self.get_actual_cost_of_project(project_id=project, token=auth_token)
         assert response.status_code == status.HTTP_200_OK
         assert response.data.get('actual_cost') == 0.00
-        assert response.data.get('resource_spendings') == 0.00
-        assert response.data.get('contract_spendings') == 0.00
+        assert response.data.get('resource_spending') == 0.00
+        assert response.data.get('contract_spending') == 0.00
     

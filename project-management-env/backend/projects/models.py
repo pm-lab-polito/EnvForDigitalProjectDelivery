@@ -11,18 +11,18 @@ class Project(models.Model):
     stakeholders = models.ManyToManyField(User, blank=True, related_name="stakeholders")
 
     def actual_cost(self):
-        resource_spendings = project_budget.models.ResourceSpending.objects.all().filter(project=self).filter(approval_status='approved').aggregate(Sum('amount')).get('amount__sum')
-        contract_spendings = project_budget.models.ContractSpending.objects.all().filter(project=self).filter(approval_status='approved').aggregate(Sum('amount')).get('amount__sum')
-        if not resource_spendings:
-            resource_spendings = 0.0
-        if not contract_spendings:
-            contract_spendings = 0.0 
-        actual_cost= resource_spendings + contract_spendings
+        resource_spending = project_budget.models.ResourceSpending.objects.all().filter(project=self).filter(approval_status='approved').aggregate(Sum('amount')).get('amount__sum')
+        contract_spending = project_budget.models.ContractSpending.objects.all().filter(project=self).filter(approval_status='approved').aggregate(Sum('amount')).get('amount__sum')
+        if not resource_spending:
+            resource_spending = 0.0
+        if not contract_spending:
+            contract_spending = 0.0 
+        actual_cost= resource_spending + contract_spending
 
         return {
             "actual_cost": actual_cost,
-            "resource_spendings": resource_spendings,
-            "contract_spendings": contract_spendings
+            "resource_spending": resource_spending,
+            "contract_spending": contract_spending
         }
 
     def __str__(self):
@@ -36,6 +36,10 @@ class Project(models.Model):
             ('delete_project_charter', 'Can delete project charter'),
             ('view_project_charter', 'Can view project charter'),
 
+            ('add_additional_budget', 'Can add additonal budget request'),
+            ('change_additional_budget', 'Can change additional budget'),
+            ('view_additional_budget', 'Can view additional budget'),
+
             ('add_project_resource', 'Can add project resource'),
             ('change_project_resource', 'Can change project resource'),
             ('delete_project_resource', 'Can delete project resource'),
@@ -46,8 +50,8 @@ class Project(models.Model):
             ('delete_project_contract', 'Can delete project contract'),
             ('view_project_contract', 'Can view project contract'),
 
-            ('add_project_spendings', 'Can add project spendings'),
-            ('change_project_spendings', 'Can change project spendings'),
-            ('delete_project_spendings', 'Can delete project spendings'),
-            ('view_project_spendings', 'Can view project spendings'),
+            ('add_project_spending', 'Can add project spending'),
+            ('change_project_spending', 'Can change project spending'),
+            ('delete_project_spending', 'Can delete project spending'),
+            ('view_project_spending', 'Can view project spending'),
         )

@@ -7,7 +7,6 @@ class EVA:
         self._task_duration = kwargs['task_duration']
         self._employee_cost_day = kwargs['employee_cost_day']
         self._actual_activity = kwargs['actual_activity']
-        # self._planned_completion_date = kwargs['planned_completion_date']
 
     @property
     def total_scheduled_tasks(self):
@@ -40,14 +39,6 @@ class EVA:
     @actual_activity.setter
     def actual_activity(self, value):
         self._actual_activity = value
-
-    # @property
-    # def planned_completion_date(self):
-    #     return self._planned_completion_date
-
-    # @planned_completion_date.setter
-    # def planned_completion_date(self, value):
-    #     self._planned_completion_date = value
 
     def _divide(self, x, y):
         li = []

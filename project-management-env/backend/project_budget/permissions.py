@@ -1,28 +1,48 @@
 from rest_framework import permissions
 from guardian.shortcuts import get_user_perms
 
+### Additional Budget permissions
 
-### Project Spendings permissions
-
-class hasAddProjectBudgetSpendingsPermission(permissions.BasePermission):
+class hasAddAdditionalBudgetPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         permissions = get_user_perms(request.user, obj)
-        return 'add_project_spendings' in permissions 
+        return 'add_additional_budget' in permissions 
 
-class hasChangeProjectBudgetSpendingsPermission(permissions.BasePermission):
+class hasChangeAdditionalBudgetPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        project = obj.budget.project_charter.project
+        permissions = get_user_perms(request.user, project)
+        return 'change_additional_budget' in permissions 
+
+class hasViewAdditionalBudgetPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        project = obj.budget.project_charter.project
+        permissions = get_user_perms(request.user, project)
+        return 'view_additional_budget' in permissions 
+
+        
+
+### Project Spending permissions
+
+class hasAddProjectBudgetSpendingPermission(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        permissions = get_user_perms(request.user, obj)
+        return 'add_project_spending' in permissions 
+
+class hasChangeProjectBudgetSpendingPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         project = obj.project
         permissions = get_user_perms(request.user, project)
-        return 'change_project_spendings' in permissions 
+        return 'change_project_spending' in permissions 
 
-class hasDeleteProjectBudgetSpendingsPermission(permissions.BasePermission):
+class hasDeleteProjectBudgetSpendingPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         project = obj.project
         permissions = get_user_perms(request.user, project)
-        return 'delete_project_spendings' in permissions 
+        return 'delete_project_spending' in permissions 
 
-class hasViewProjectBudgetSpendingsPermission(permissions.BasePermission):
+class hasViewProjectBudgetSpendingPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         project = obj.project
         permissions = get_user_perms(request.user, project)
-        return 'view_project_spendings' in permissions 
+        return 'view_project_spending' in permissions 

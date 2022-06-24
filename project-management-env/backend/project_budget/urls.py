@@ -1,57 +1,53 @@
 from django.urls import path
-from .views import (ProjectBudgetAPI, DeleteProjectBudgetAPI, DeleteTotalProjectBudgetAPI, 
-                        ProjectBudgetDetailsAPI, TotalProjectBudgetAPI, EditProjectBudgetAPI, 
-                        AddResourceSpendingAPI, UpdateResourceSpendingAPI, GetResourceSpendingDetailsAPI,
-                        DeleteResourceSpendingAPI, GetResourceSpendingsByBudgetAPI, AddContractSpendingAPI, 
-                        UpdateContractSpendingAPI, GetContractSpendingDetailsAPI, GetContractSpendingsByBudgetAPI,
-                        DeleteContractSpendingAPI, GetActualCostOfProjectByBudgetAPI,
-                        AddProjectBudgetPermissionsOfUserAPI, DeleteProjectBudgetPermissionsOfUserAPI,
-                        ForecastFutureSpendingsAPI, ForecastBalanceAPI)
+from .views import *
 
 
 urlpatterns = [
     path('set/<int:project_charter>/', ProjectBudgetAPI.as_view(), name='set-project-budget'),
-    path('delete/<int:pk>/', DeleteProjectBudgetAPI.as_view(), name='delete-project-budget'),
+    path('<int:pk>/delete/', DeleteProjectBudgetAPI.as_view(), name='delete-project-budget'),
     path('delete/total/<int:project_charter_pk>/', DeleteTotalProjectBudgetAPI.as_view(), 
         name='delete-total-project-budget'),
-    path('details/<int:pk>/', ProjectBudgetDetailsAPI.as_view(), name='project-budget-details'),
+    path('<int:pk>/details/', ProjectBudgetDetailsAPI.as_view(), name='project-budget-details'),
     path('total/<int:project_charter_pk>/', TotalProjectBudgetAPI.as_view(), name='total-project-budget'),
-    path('edit/<int:pk>/', EditProjectBudgetAPI.as_view(), name='edit-project-budget'),
-    path('<int:pk>/get/actual-cost/', GetActualCostOfProjectByBudgetAPI.as_view(), 
+    path('<int:pk>/edit/', EditProjectBudgetAPI.as_view(), name='edit-project-budget'),
+    path('<int:pk>/actual-cost/get/', GetActualCostOfProjectByBudgetAPI.as_view(), 
         name='get-actual-cost-of-project-by-budget'),
+
+    ##### addtional budget
+    path('additional-budget/request/', RequestAdditionalBudgetAPI.as_view(), name='request-additional-budget'),
+    path('additional-budget/<int:pk>/update-status/', UpdateAdditionalFundRequestStatusAPI.as_view(), 
+        name='update-fund-request-status'),
+    path('additional-budget/<int:pk>/get/', GetAdditionalBudgetDetailsAPI.as_view(), 
+        name='get-additional-budget-details'),
+    path('additional-budget/<int:project_id>/budget-requests/all/', GetAdditionalBudgetRequestsAPI.as_view(), 
+        name='get-additional-budget-requests'),
     
-    ##### resource spendings
-    path('resource-spendings/add/', AddResourceSpendingAPI.as_view(), name='add-resource-spending'),
-    path('resource-spendings/<int:pk>/update/', UpdateResourceSpendingAPI.as_view(), 
+    ##### resource spending
+    path('resource-spending/add/', AddResourceSpendingAPI.as_view(), name='add-resource-spending'),
+    path('resource-spending/<int:pk>/update/', UpdateResourceSpendingAPI.as_view(), 
         name='update-resource-spending'),
-    path('resource-spendings/<int:pk>/get/', GetResourceSpendingDetailsAPI.as_view(), 
+    path('resource-spending/<int:pk>/get/', GetResourceSpendingDetailsAPI.as_view(), 
         name='get-resource-spending-details'),
-    path('resource-spendings/<int:budget_id>/get/list/', GetResourceSpendingsByBudgetAPI.as_view(), 
-        name='get-resource-spendings-by-budget'),
-    path('resource-spendings/<int:pk>/delete/', DeleteResourceSpendingAPI.as_view(), 
+    path('resource-spending/get/list/<int:budget_id>/', GetResourceSpendingsByBudgetAPI.as_view(), 
+        name='get-resource-spending-by-budget'),
+    path('resource-spending/<int:pk>/delete/', DeleteResourceSpendingAPI.as_view(), 
         name='delete-resource-spending'),
 
-    ##### contract spendings
-    path('contract-spendings/add/', AddContractSpendingAPI.as_view(), name='add-contract-spending'),
-    path('contract-spendings/contract/<int:pk>/update/', UpdateContractSpendingAPI.as_view(), 
+    ##### contract spending
+    path('contract-spending/add/', AddContractSpendingAPI.as_view(), name='add-contract-spending'),
+    path('contract-spending/contract/<int:pk>/update/', UpdateContractSpendingAPI.as_view(), 
         name='update-contract-spending'),
-    path('contract-spendings/<int:pk>/get/', GetContractSpendingDetailsAPI.as_view(), 
+    path('contract-spending/<int:pk>/get/', GetContractSpendingDetailsAPI.as_view(), 
         name='get-contract-spending-details'),
-    path('contract-spendings/<int:budget_id>/get/list/', GetContractSpendingsByBudgetAPI.as_view(), 
-        name='get-contract-spendings-by-budget'),
-    path('contract-spendings/<int:pk>/delete/', DeleteContractSpendingAPI.as_view(), 
+    path('contract-spending/get/list/<int:budget_id>/', GetContractSpendingsByBudgetAPI.as_view(), 
+        name='get-contract-spending-by-budget'),
+    path('contract-spending/<int:pk>/delete/', DeleteContractSpendingAPI.as_view(), 
         name='delete-contract-spending'),
 
-    # Forecast spendings
+    # Forecast spending
     path('<int:pk>/forecast-balance/', ForecastBalanceAPI.as_view(), 
         name='get-forecast-balance'),
-    path('<int:pk>/forecast-future-spendings/', ForecastFutureSpendingsAPI.as_view(), 
-        name='forecast-future-spendings'),
+    path('<int:pk>/forecast-future-spending/', ForecastFutureSpendingAPI.as_view(), 
+        name='forecast-future-spending'),
 
-    
-    ##### Permissions 
-    path('spendings/permissions/add/', AddProjectBudgetPermissionsOfUserAPI.as_view(), 
-        name='add-project-budget-spendings-permissions'),
-    path('spendings/permissions/delete/', DeleteProjectBudgetPermissionsOfUserAPI.as_view(), 
-        name='delete-project-budget-spendings-permissions'),
 ]

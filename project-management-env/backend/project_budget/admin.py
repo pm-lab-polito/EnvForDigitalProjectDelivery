@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ProjectBudget, ResourceSpending, ContractSpending
+from .models import ProjectBudget, ResourceSpending, ContractSpending, AdditionalBudget
 
 
 class CustomProjectBudgetManager(admin.ModelAdmin):
@@ -14,6 +14,19 @@ class CustomProjectBudgetManager(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(ProjectBudget, CustomProjectBudgetManager)
+
+
+class CustomAdditionalBudgetManager(admin.ModelAdmin):
+    ordering = ('budget',) 
+    list_display = ('budget', 'amount', 'date', 'status',)
+    search_fields = ('budget', 'amount')
+    readonly_fields = ('id',)
+
+    filer_horizontal = ()
+    list_filter = ()
+
+
+admin.site.register(AdditionalBudget, CustomAdditionalBudgetManager)
 
 
 class CustomResourceSpendingManager(admin.ModelAdmin):

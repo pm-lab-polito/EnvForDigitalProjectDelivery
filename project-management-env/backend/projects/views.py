@@ -8,32 +8,18 @@ from accounts.models import User
 from guardian.shortcuts import assign_perm, get_user_perms, remove_perm
 
 
+def default_permissions():
+    return ['add_project', 'change_project', 'delete_project', 'view_project', 
+        'add_project_charter', 'change_project_charter', 'delete_project_charter', 'view_project_charter', 
+        'add_project_resource', 'change_project_resource', 'delete_project_resource', 'view_project_resource', 
+        'add_project_contract', 'change_project_contract', 'delete_project_contract', 'view_project_contract', 
+        'add_project_spending', 'change_project_spending', 'delete_project_spending', 'view_project_spending', 
+        'add_additional_budget', 'change_additional_budget', 'view_additional_budget']
+
 def assign_full_project_perm_to_stakeholder(project, author):
-    user = User.objects.get(id=author.id)
-    assign_perm('project.add_project', user, project)
-    assign_perm('project.change_project', user, project)
-    assign_perm('project.delete_project', user, project)
-    assign_perm('project.view_project', user, project)
-
-    assign_perm('project_charter.add_project_charter', user, project)
-    assign_perm('project_charter.change_project_charter', user, project)
-    assign_perm('project_charter.delete_project_charter', user, project)
-    assign_perm('project_charter.view_project_charter', user, project)
-
-    assign_perm('project_resources.add_project_resource', user, project)
-    assign_perm('project_resources.change_project_resource', user, project)
-    assign_perm('project_resources.delete_project_resource', user, project)
-    assign_perm('project_resources.view_project_resource', user, project)
-
-    assign_perm('project_procurements.add_project_contract', user, project)
-    assign_perm('project_procurements.change_project_contract', user, project)
-    assign_perm('project_procurements.delete_project_contract', user, project)
-    assign_perm('project_procurements.view_project_contract', user, project)
-
-    assign_perm('project_budget.add_project_spendings', user, project)
-    assign_perm('project_budget.change_project_spendings', user, project)
-    assign_perm('project_budget.delete_project_spendings', user, project)
-    assign_perm('project_budget.view_project_spendings', user, project)
+    user = User.objects.get(id=author.id)    
+    for value in default_permissions():
+        assign_perm(value, user, project)
 
 
 #   Create a new project
@@ -179,14 +165,14 @@ class GetActualCostOfProjectAPI(generics.GenericAPIView):
 
 
 
+
 #### Permissions #####
+
 def validated_project_permissions(permissions):
     if permissions and len(permissions) > 0:
-        if ('add_project' in permissions or 
-            'change_project' in permissions or 
-            'delete_project' in permissions or 
-            'view_project' in permissions):
-            return True
+        for value in permissions:
+            if value in default_permissions():
+                return True
     return False
 
         
@@ -206,21 +192,12 @@ class AddProjectPermissionsOfUserAPI(generics.GenericAPIView):
             # user is stakeholder of the project
             if user in project.stakeholders.all():
                 if validated_project_permissions(permissions):
-                    if 'add_project' in permissions:
-                            assign_perm('project.add_project', user, project)
-
-                    if 'change_project' in permissions:
-                            assign_perm('project.change_project', user, project)
-
-                    if 'delete_project' in permissions:
-                            assign_perm('project.delete_project', user, project)
-
-                    if 'view_project' in permissions:
-                            assign_perm('project.view_project', user, project)
+                    for value in permissions:
+                        if value in default_permissions():
+                            assign_perm(value, user, project)
                     
                     return Response(status=status.HTTP_201_CREATED)
 
-                
                 return Response({
                         'detail': 'Permissions is not defined correctly.'
                     },
@@ -301,21 +278,12 @@ class DeleteProjectPermissionsOfUserAPI(generics.GenericAPIView):
             # check if a request user is a project author 
             self.check_object_permissions(request, project)
             if validated_project_permissions(permissions):
-                if 'add_project' in permissions:
-                        remove_perm('project.add_project', user, project)
-
-                if 'change_project' in permissions:
-                        remove_perm('project.change_project', user, project)
-
-                if 'delete_project' in permissions:
-                        remove_perm('project.delete_project', user, project)
-
-                if 'view_project' in permissions:
-                        remove_perm('project.view_project', user, project)
+                for value in permissions:
+                    if value in default_permissions():
+                        remove_perm(value, user, project)
                 
                 return Response(status=status.HTTP_204_NO_CONTENT)
 
-            
             return Response({
                     'detail': 'Permissions is not defined correctly.'
                 },

@@ -1,6 +1,5 @@
 from django.db import models
 from projects.models import Project
-from datetime import date
 
 
 class Contract(models.Model):
@@ -11,7 +10,7 @@ class Contract(models.Model):
     unit = models.CharField(max_length=255, default='euro')
     assignment = models.IntegerField(default=0)
     supplier = models.CharField(max_length=255)
-    date = models.DateField(default=date.today())
+    date = models.DateField()
  
     def total_cost(self):
         return self.unit_price * self.assignment

@@ -19,19 +19,19 @@ class ProjectBudget(models.Model):
     budget = models.FloatField(default=0.00)
 
     def actual_cost(self):
-        resource_spendings = ResourceSpending.objects.all().filter(budget=self).filter(approval_status='approved').aggregate(Sum('amount')).get('amount__sum')
-        contract_spendings = ContractSpending.objects.all().filter(budget=self).filter(approval_status='approved').aggregate(Sum('amount')).get('amount__sum')
-        if not resource_spendings:
-            resource_spendings = 0.0
-        if not contract_spendings:
-            contract_spendings = 0.0 
-        actual_cost= resource_spendings + contract_spendings
+        resource_spending = ResourceSpending.objects.all().filter(budget=self).filter(approval_status='approved').aggregate(Sum('amount')).get('amount__sum')
+        contract_spending = ContractSpending.objects.all().filter(budget=self).filter(approval_status='approved').aggregate(Sum('amount')).get('amount__sum')
+        if not resource_spending:
+            resource_spending = 0.0
+        if not contract_spending:
+            contract_spending = 0.0 
+        actual_cost= resource_spending + contract_spending
         return {
             "year": self.year,
             "budget": self.budget,
             "actual_cost": actual_cost,
-            "resource_spendings": resource_spendings,
-            "contract_spendings": contract_spendings
+            "resource_spending": resource_spending,
+            "contract_spending": contract_spending
         }
     
     def __str__(self):
@@ -42,6 +42,26 @@ class ProjectBudget(models.Model):
 
 
 
+
+class AdditionalBudget(models.Model):
+    budget = models.ForeignKey(ProjectBudget, on_delete=models.CASCADE)
+    amount = models.FloatField(default=0.0)
+    date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=8,
+        choices=[('waiting', 'waiting'), ('approved', 'approved'), ('denied', 'denied')],
+        default=('waiting')
+    )
+
+    def __str__(self):
+        return str(self.amount)
+    
+    class Meta:
+        ordering = ('budget',)
+
+
+
+
 class ResourceSpending(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
@@ -49,7 +69,7 @@ class ResourceSpending(models.Model):
     assignment = models.IntegerField(default=0)
     amount = models.FloatField(default=0.00)
     description = models.TextField(blank=True, max_length=1024)
-    date = models.DateField(default=datetime.date.today())
+    date = models.DateField()
     approval_status = models.CharField(max_length=9, 
             choices=[('approved', 'approved'), ('denied', 'denied')] , 
             default=('approved')
@@ -70,7 +90,7 @@ class ContractSpending(models.Model):
     budget = models.ForeignKey(ProjectBudget, on_delete=models.CASCADE)
     amount = models.FloatField(default=0.00)
     description = models.TextField(blank=True, max_length=1024)
-    date = models.DateField(default=datetime.date.today())
+    date = models.DateField()
     approval_status = models.CharField(max_length=9, 
             choices=[('approved', 'approved'), ('denied', 'denied')] , 
             default=('approved')
