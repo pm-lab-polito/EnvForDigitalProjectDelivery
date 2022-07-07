@@ -7,10 +7,10 @@ from project_charter.models import ProjectCharter, BusinessCaseSWOT
 from accounts import views as account_views
 from projects import views as project_views
 from project_charter import views as project_charter_views
-from guardian.shortcuts import assign_perm, get_user_perms
+from guardian.shortcuts import assign_perm
 
 
-class ProjectTest(APITestCase):
+class ProjectCharterTest(APITestCase):
     def generate_pmo_user_data(self):
         return {
             "first_name": "Luca",
@@ -91,7 +91,7 @@ class ProjectTest(APITestCase):
         response = self.post_user_login(user)
         assert response.status_code == status.HTTP_200_OK
 
-        # Authorized Project Management can create a new project charter
+        # Authorized Project Manager can create a new project charter
         author = response.data['user']['id']
         auth_token = response.data['auth_token']
         project = self.generate_project_data(author=author)

@@ -406,7 +406,7 @@ class ProjectTest(APITestCase):
 
 
     def get_project_permissions_of_stakeholder(self, user_id, project_id, token):
-        url = reverse(project_views.GetProjectPermissionsOfUserAPI.name, None, [user_id, project_id])
+        url = reverse(project_views.GetProjectPermissionsOfUserAPI.name, None, [project_id, user_id])
         auth_token = 'Token '+token
         response = self.client.get(url, HTTP_AUTHORIZATION=auth_token, format='json')
         return response
@@ -467,9 +467,9 @@ class ProjectTest(APITestCase):
             token=auth_token)
         assert response.status_code == status.HTTP_200_OK
 
-        # assign main project permissions to a stakeholder
+        # assign project permissions to a stakeholder
         assert not get_user_perms(user, project)
-        permissions = ["change_project", "add_project", "delete_project", "view_project"]
+        permissions = ["change_project_charter", "add_project_charter", "delete_project_charter", "view_project"]
         response = self.post_assign_project_permissions(user_id=user.id, project_id=project.id, 
             perms=permissions, token=auth_token)
         assert response.status_code == status.HTTP_201_CREATED
@@ -491,7 +491,7 @@ class ProjectTest(APITestCase):
         response = self.post_assign_all_project_permissions(user_id=user.id, project_id=project.id, 
             token=auth_token)
         assert response.status_code == status.HTTP_201_CREATED
-        assert len(get_user_perms(user, project)) == 20
+        assert len(get_user_perms(user, project)) == 23
     
 
 

@@ -196,7 +196,7 @@ class GetAdditionalBudgetRequestsAPI(generics.ListAPIView):
 class AddResourceSpendingAPI(generics.CreateAPIView):
     name = 'add-resource-spending'
     serializer_class = ResourceSpendingSerializer
-    permission_classes = [hasAddProjectBudgetSpendingPermission,]
+    permission_classes = [hasAddProjectSpendingPermission,]
 
     def create(self, request, *args, **kwargs):
         try:
@@ -221,21 +221,21 @@ class UpdateResourceSpendingAPI(generics.UpdateAPIView):
     name = 'update-resource-spending'
     serializer_class = ResourceSpendingSerializer
     queryset = ResourceSpending.objects.all()
-    permission_classes = [hasChangeProjectBudgetSpendingPermission,]
+    permission_classes = [hasChangeProjectSpendingPermission,]
 
 
 class GetResourceSpendingDetailsAPI(generics.RetrieveAPIView):
     name = 'get-resource-spending-details'
     serializer_class = ResourceSpendingSerializer
     queryset = ResourceSpending.objects.all()
-    permission_classes = [hasViewProjectBudgetSpendingPermission,]
+    permission_classes = [hasViewProjectSpendingPermission,]
 
 
 class GetResourceSpendingsByBudgetAPI(generics.ListAPIView):
     name = 'get-resource-spending-by-budget'
     serializer_class = ResourceSpendingSerializer
     model = serializer_class.Meta.model
-    permission_classes = [hasViewProjectBudgetSpendingPermission,]
+    permission_classes = [hasViewProjectSpendingPermission,]
     lookup_url_kwarg = 'budget_id'
 
     def get_queryset(self):
@@ -253,7 +253,7 @@ class DeleteResourceSpendingAPI(generics.DestroyAPIView):
     name = 'delete-resource-spending'
     serializer_class = ResourceSpendingSerializer
     queryset = ResourceSpending.objects.all()
-    permission_classes = [hasDeleteProjectBudgetSpendingPermission,]
+    permission_classes = [hasDeleteProjectSpendingPermission,]
 
 
 
@@ -263,7 +263,7 @@ class DeleteResourceSpendingAPI(generics.DestroyAPIView):
 class AddContractSpendingAPI(generics.CreateAPIView):
     name = 'add-contract-spending'
     serializer_class = ContractSpendingSerializer
-    permission_classes = [hasAddProjectBudgetSpendingPermission,]
+    permission_classes = [hasAddProjectSpendingPermission,]
 
     def create(self, request, *args, **kwargs):
         try:
@@ -288,21 +288,21 @@ class UpdateContractSpendingAPI(generics.UpdateAPIView):
     name = 'update-contract-spending'
     serializer_class = ContractSpendingSerializer
     queryset = ContractSpending.objects.all()
-    permission_classes = [hasChangeProjectBudgetSpendingPermission,]
+    permission_classes = [hasChangeProjectSpendingPermission,]
 
 
 class GetContractSpendingDetailsAPI(generics.RetrieveAPIView):
     name = 'get-contract-spending-details'
     serializer_class = ContractSpendingSerializer
     queryset = ContractSpending.objects.all()
-    permission_classes = [hasViewProjectBudgetSpendingPermission,]
+    permission_classes = [hasViewProjectSpendingPermission,]
 
 
 class GetContractSpendingsByBudgetAPI(generics.ListAPIView):
     name = 'get-contract-spending-by-budget'
     serializer_class = ContractSpendingSerializer
     model = serializer_class.Meta.model
-    permission_classes = [hasViewProjectBudgetSpendingPermission,]
+    permission_classes = [hasViewProjectSpendingPermission,]
     lookup_url_kwarg = 'budget_id'
 
     def get_queryset(self):
@@ -320,7 +320,7 @@ class DeleteContractSpendingAPI(generics.DestroyAPIView):
     name = 'delete-contract-spending'
     serializer_class = ContractSpendingSerializer
     queryset = ContractSpending.objects.all()
-    permission_classes = [hasDeleteProjectBudgetSpendingPermission,]
+    permission_classes = [hasDeleteProjectSpendingPermission,]
 
 
 ############ Forecast Spending ############
@@ -328,7 +328,7 @@ class DeleteContractSpendingAPI(generics.DestroyAPIView):
 class ForecastBalanceAPI(generics.GenericAPIView):
     name = 'get-forecast-balance'
     serializer_class = ForecastBalanceSerializer
-    permission_classes = [hasViewProjectBudgetSpendingPermission,]
+    permission_classes = [hasViewProjectSpendingPermission,]
 
     def post(self, request, *args, **kwargs):
         try:
@@ -349,7 +349,7 @@ class ForecastBalanceAPI(generics.GenericAPIView):
 class ForecastFutureSpendingAPI(generics.GenericAPIView):
     name = 'forecast-future-spending'
     serializer_class = ForecastSerializer
-    permission_classes = [hasViewProjectBudgetSpendingPermission,]
+    permission_classes = [hasViewProjectSpendingPermission,]
 
     def post(self, request, *args, **kwargs):
         try:
